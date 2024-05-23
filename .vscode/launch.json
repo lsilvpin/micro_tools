@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug FastAPI",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "uvicorn",
+            "args": [
+                "main.entrypoint.main:app",
+                "--reload"
+            ],
+            "env": {
+                "environment": "dev"
+            }
+        }
+    ]
+}

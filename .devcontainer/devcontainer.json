@@ -1,0 +1,50 @@
+{
+	"name": "Python 3",
+	"build": {
+		"dockerfile": "../Base.Dockerfile",
+		"context": ".."
+	},
+	"postCreateCommand": "bash .devcontainer/provision.sh",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.black-formatter",
+				"ms-azuretools.vscode-docker",
+				"EditorConfig.EditorConfig",
+				"GitHub.copilot",
+				"GitHub.copilot-chat",
+				"s-nlf-fh.glassit",
+				"fathulfahmy.lunarkeymap",
+				"JuniorSchmidt.lunar-vscode-theme",
+				"vscodevim.vim",
+				"tomoki1207.pdf",
+				"VSpaceCode.whichkey",
+				"redhat.vscode-xml"
+			],
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"terminal.integrated.profiles.linux": {
+					"bash": {
+						"path": "/bin/bash"
+					},
+					"zsh": {
+						"path": "/bin/zsh"
+					}
+				}
+			}
+		}
+	},
+	"runArgs": [
+		"--privileged",
+		"--network",
+		"host"
+	],
+	"mounts": [
+		// {
+		// 	"type": "bind",
+		// 	"source": "/tmp/.X11-unix/",
+		// 	"target": "/tmp/.X11-unix/"
+		// }
+	]
+}
