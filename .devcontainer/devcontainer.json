@@ -38,7 +38,9 @@
 	"runArgs": [
 		"--privileged",
 		"--network",
-		"host"
+		"host",
+		"-e",
+		"MICRO_TOOLS_SYS_ENV=dev"
 	],
 	"mounts": [
 		// {
