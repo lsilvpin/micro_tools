@@ -1,5 +1,7 @@
 import sys, os, http.client, json
 
+from main.library.repositories.notion.models.notion_page_block import NotionPageBlock
+from main.library.repositories.notion.models.notion_property import NotionProperty
 from main.library.repositories.notion.utils.notion_validations import (
     validate_http_response,
 )
@@ -62,6 +64,137 @@ class NotionPageManager:
         response_str: str = response_data.decode("utf-8")
         response_dict: dict = json.loads(response_str)
         return response_dict
+    
+    def read_page_properties_by_page_id(self, page_id: str) -> NotionPage:
+        assert page_id is not None, "Page ID cannot be None"
+        notion_protocol: str = self.settings_tool.get("NOTION_PROTOCOL")
+        assert notion_protocol is not None, "NOTION_PROTOCOL cannot be None"
+        notion_host: str = self.settings_tool.get("NOTION_HOST")
+        assert notion_host is not None, "NOTION_HOST cannot be None"
+        notion_port: str = self.settings_tool.get("NOTION_PORT")
+        assert notion_port is not None, "NOTION_PORT cannot be None"
+        notion_version: str = self.settings_tool.get("NOTION_VERSION")
+        assert notion_version is not None, "NOTION_VERSION cannot be None"
+        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
+        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
+        notion_database_uri: str = f"/v1/pages/{page_id}"
+        headers: dict = {
+            "Authorization": f"Bearer {notion_api_key}",
+            "Content-Type": "application/json",
+            "Notion-Version": notion_version,
+        }
+        isHttps: bool = notion_protocol == "https"
+        conn: http.client.HTTPSConnection = (
+            http.client.HTTPSConnection(notion_host, notion_port)
+            if isHttps
+            else http.client.HTTPConnection(notion_host, notion_port)
+        )
+        assert conn is not None, "Connection cannot be None"
+        conn.request("GET", notion_database_uri, headers=headers)
+        response: http.client.HTTPResponse = conn.getresponse()
+        assert response is not None, "Response cannot be None"
+        response_status: int = response.status
+        response_data: bytes = response.read()
+        validate_http_response(response_status, response.reason, response_data)
+        response_str: str = response_data.decode("utf-8")
+        response_dict: dict = json.loads(response_str)
+        response_page: NotionPage = self.__build_page_from_response(response_dict)
+        return response_page
+    
+    def __build_page_from_response(self, response: dict) -> NotionPage:
+        assert response is not None, "Response cannot be None"
+        assert "object" in response, "Response object cannot be None"
+        assert response["object"] == "page", "Response object must be a page"
+        assert "properties" in response, "Response properties cannot be None"
+        assert response["properties"] is not None, "Response properties cannot be None"
+        page_id: str = response["id"]
+        properties: dict = response["properties"]
+        notionProperties: list = []
+        notionBlocks: list = []
+        for prop in properties:
+            name: str = prop
+            prop_type: str = properties[prop]["type"]
+            value: str = self.__get_prop_value_from_response(properties[prop])
+            notionProperties.append(NotionProperty(name, prop_type, value))
+        return NotionPage(notionProperties, notionBlocks, page_id)
+    
+    def __get_block_value_from_response(self, block: dict) -> str:
+        assert block is not None, "Block cannot be None"
+        assert "type" in block, "Block type cannot be None"
+        block_type: str = block["type"]
+        if block_type == "paragraph":
+            return block["paragraph"]["text"][0]["text"]["content"]
+        elif block_type == "heading_1":
+            return block["heading_1"]["text"][0]["text"]["content"]
+        elif block_type == "heading_2":
+            return block["heading_2"]["text"][0]["text"]["content"]
+        elif block_type == "heading_3":
+            return block["heading_3"]["text"][0]["text"]["content"]
+        elif block_type == "bulleted_list":
+            return block["bulleted_list"]["text"][0]["text"]["content"]
+        elif block_type == "numbered_list":
+            return block["numbered_list"]["text"][0]["text"]["content"]
+        elif block_type == "to_do":
+            return block["to_do"]["text"][0]["text"]["content"]
+        elif block_type == "toggle":
+            return block["toggle"]["text"][0]["text"]["content"]
+        elif block_type == "image":
+            return block["image"]["external"]["url"]
+        elif block_type == "video":
+            return block["video"]["external"]["url"]
+        elif block_type == "file":
+            return block["file"]["external"]["url"]
+        elif block_type == "code":
+            return block["code"]["text"]
+        elif block_type == "quote":
+            return block["quote"]["text"][0]["text"]["content"]
+        else:
+            raise Exception(f"Invalid block type: {block_type}")
+    
+    def __get_prop_value_from_response(self, prop: dict) -> str:
+        assert prop is not None, "Property cannot be None"
+        assert "type" in prop, "Property type cannot be None"
+        prop_type: str = prop["type"]
+        if prop_type == "title":
+            return prop["title"][0]["plain_text"]
+        elif prop_type == "rich_text":
+            return prop["rich_text"][0]["plain_text"]
+        elif prop_type == "number":
+            return str(prop["number"])
+        elif prop_type == "select":
+            return prop["select"]["name"]
+        elif prop_type == "multi_select":
+            return prop["multi_select"][0]["name"]
+        elif prop_type == "date":
+            return prop["date"]["start"]
+        elif prop_type == "people":
+            return prop["people"][0]["id"]
+        elif prop_type == "files":
+            return prop["files"][0]["id"]
+        elif prop_type == "checkbox":
+            return str(prop["checkbox"])
+        elif prop_type == "url":
+            return prop["url"]
+        elif prop_type == "email":
+            return prop["email"]
+        elif prop_type == "phone_number":
+            return prop["phone_number"]
+        elif prop_type == "formula":
+            return prop["formula"]["expression"]
+        elif prop_type == "relation":
+            return prop["relation"][0]["id"]
+        elif prop_type == "rollup":
+            return prop["rollup"]["array"][0]["id"]
+        elif prop_type == "created_time":
+            return prop["created_time"]
+        elif prop_type == "last_edited_time":
+            return prop["last_edited_time"]
+        elif prop_type == "last_edited_by":
+            return prop["last_edited_by"]["id"]
+        elif prop_type == "created_by":
+            return prop["created_by"]["id"]
+        else:
+            raise Exception(f"Invalid property type: {prop_type}")
 
     def __build_blocks(self, page: NotionPage) -> list:
         assert page is not None, "Page cannot be None"
