@@ -140,6 +140,48 @@ def test_should_read_page_by_id(mocker):
     assert response_page.blocks is not None, "Page blocks are empty"
     assert len(response_page.blocks) > 0, "Page blocks are empty"
 
+def test_should_update_page_by_id(mocker):
+    # Mocks
+    successResponse = mocker.Mock()
+    successResponse.status = 200
+    sample: str = (
+        '{"object":"page","id":"b278bdba-2484-4976-a2fc-36414c73d73d","created_time":"2024-05-24T01:40:00.000Z","last_edited_time":"2024-05-24T18:39:00.000Z","created_by":{"object":"user","id":"27910b45-ae07-403c-b7e9-35b5adc896af"},"last_edited_by":{"object":"user","id":"27910b45-ae07-403c-b7e9-35b5adc896af"},"cover":null,"icon":{"type":"emoji","emoji":"👩🏻‍💻"},"parent":{"type":"database_id","database_id":"6301f640-e21c-4526-a72e-d96e7d4ba71d"},"archived":false,"in_trash":false,"properties":{"Papel":{"id":"PqtR","type":"rich_text","rich_text":[{"type":"text","text":{"content":"Exemplo de Papel","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Exemplo de Papel","href":null}]},"Objetivo":{"id":"TF%7BM","type":"rich_text","rich_text":[{"type":"text","text":{"content":"Exemplo de objetivo","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Exemplo de objetivo","href":null}]},"Nome":{"id":"title","type":"title","title":[{"type":"text","text":{"content":"Exemplo de nome 3","link":null},"annotations":{"bold":false,"italic":false,"strikethrough":false,"underline":false,"code":false,"color":"default"},"plain_text":"Exemplo de nome 3","href":null}]}},"url":"https://www.notion.so/Exemplo-de-nome-3-b278bdba24844976a2fc36414c73d73d","public_url":null,"developer_survey":"https://notionup.typeform.com/to/bllBsoI4?utm_source=postman","request_id":"4161f203-ee7c-433c-a20a-f40620d5e8fb"}'
+    )
+    successResponse.read.return_value = sample.encode("utf-8")
+    conn = mocker.Mock()
+    conn.getresponse.return_value = successResponse
+    mocker.patch("http.client.HTTPSConnection", return_value=conn)
+    
+    # Arrange
+    page_id: str = "b278bdba-2484-4976-a2fc-36414c73d73d"
+    icon: NotionIcon = NotionIcon("emoji", "👩🏻‍💻")
+    properties: list[NotionProperty] = [
+        NotionProperty("Nome", NOTION_PROPERTY_TYPES["title"], "Exemplo de nome 3"),
+        NotionProperty("Papel", NOTION_PROPERTY_TYPES["rich_text"], "Exemplo de Papel"),
+        NotionProperty("Objetivo", NOTION_PROPERTY_TYPES["rich_text"], "Exemplo de objetivo"),
+    ]
+    page: NotionPage = NotionPage(icon, properties, [])
+
+    # Act
+    response_data: dict = notion_page_manager.update_page_by_id(page_id, page)
+    
+    # Assert
+    assert response_data is not None
+    assert "object" in response_data
+    assert response_data["object"] == "page"
+    assert "id" in response_data
+    assert response_data["id"] == page_id
+    assert "icon" in response_data
+    assert response_data["icon"]["type"] == icon.type
+    assert response_data["icon"]["emoji"] == icon.value
+    assert "properties" in response_data
+    assert "Nome" in response_data["properties"]
+    assert "Papel" in response_data["properties"]
+    assert "Objetivo" in response_data["properties"]
+    assert response_data["properties"]["Nome"]["title"][0]["text"]["content"] == "Exemplo de nome 3"
+    assert response_data["properties"]["Papel"]["rich_text"][0]["text"]["content"] == "Exemplo de Papel"
+    assert response_data["properties"]["Objetivo"]["rich_text"][0]["text"]["content"] == "Exemplo de objetivo"
+        
 def test_should_archive_page_by_id(mocker):
     # Mocks
     successResponse = mocker.Mock()

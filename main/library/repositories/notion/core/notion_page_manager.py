@@ -154,12 +154,13 @@ class NotionPageManager:
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }
+        icon: dict = build_icon_for_request(page)
         properties: dict = build_properties_for_request(page)
-        blocks: list = build_blocks_for_request(page)
+        # blocks: list = build_blocks_for_request(page)
         body: dict = {
-            "icon": {"type": "emoji", "emoji": "👩🏻‍💻"},
+            "icon": icon,
             "properties": properties,
-            "children": blocks,
+            # "children": blocks,
         }
         body_json: str = json.dumps(body)
         isHttps: bool = notion_protocol == "https"
