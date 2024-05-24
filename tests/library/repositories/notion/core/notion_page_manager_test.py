@@ -1,5 +1,6 @@
 import sys, os
 
+from main.library.repositories.notion.models.notion_custom_icon import NotionIcon
 from main.library.tools.core.log_tool import LogTool
 from main.library.tools.core.settings_tool import SettingsTool
 
@@ -35,6 +36,7 @@ def test_should_create_agent_page(mocker):
 
     # Arrange
     database_id: str = "6301f640e21c4526a72ed96e7d4ba71d"
+    icon: NotionIcon = NotionIcon("emoji", "👩🏻‍💻")
     nome: NotionProperty = NotionProperty(
         "Nome", NOTION_PROPERTY_TYPES["title"], "Exemplo de nome"
     )
@@ -48,7 +50,7 @@ def test_should_create_agent_page(mocker):
         NOTION_BLOCK_TYPES["image"],
         "https://images.unsplash.com/photo-1513097633097-329a3a64e0d4?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb",
     )
-    page: NotionPage = NotionPage([nome, papel, objetivo], [image])
+    page: NotionPage = NotionPage(icon, [nome, papel, objetivo], [image])
 
     # Act
     response_data: dict = notion_page_manager.create_page(page, database_id)

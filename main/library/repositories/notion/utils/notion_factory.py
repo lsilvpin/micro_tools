@@ -1,5 +1,8 @@
 import sys, os
 
+from main.library.repositories.notion.models.notion_custom_icon import NotionIcon
+from main.library.repositories.notion.utils.notion_icon_types import NOTION_ICON_TYPES
+
 sys.path.insert(0, os.path.abspath("."))
 
 from main.library.repositories.notion.models.notion_page import NotionPage
@@ -25,6 +28,7 @@ def build_page_from_response(response: dict) -> NotionPage:
     assert "properties" in response, "Response properties cannot be None"
     assert response["properties"] is not None, "Response properties cannot be None"
     page_id: str = response["id"]
+    page_icon: NotionIcon = get_icon_from_response(response)
     properties: dict = response["properties"]
     notionProperties: list = []
     notionBlocks: list = []
@@ -33,7 +37,26 @@ def build_page_from_response(response: dict) -> NotionPage:
         prop_type: str = properties[prop]["type"]
         value: str = get_prop_value_from_response(properties[prop])
         notionProperties.append(NotionProperty(name, prop_type, value))
-    return NotionPage(notionProperties, notionBlocks, page_id)
+    return NotionPage(page_icon, notionProperties, notionBlocks, page_id)
+
+
+def get_icon_from_response(response: dict) -> NotionIcon:
+    assert response is not None, "Response cannot be None"
+    assert "object" in response, "Response object cannot be None"
+    assert response["object"] == "page", "Response object must be a page"
+    assert "icon" in response, "Response icon cannot be None"
+    assert response["icon"] is not None, "Response icon cannot be None"
+    icon: dict = response["icon"]
+    assert "type" in icon, "Icon type cannot be None"
+    icon_type: str = icon["type"]
+    if icon_type == NOTION_ICON_TYPES["emoji"]:
+        return NotionIcon(icon_type, icon["emoji"])
+    elif icon_type == NOTION_ICON_TYPES["external"]:
+        return NotionIcon(icon_type, icon["external"]["url"])
+    elif icon_type == NOTION_ICON_TYPES["file"]:
+        return NotionIcon(icon_type, icon["file"]["url"])
+    else:
+        raise Exception(f"Invalid icon type: {icon_type}")
 
 
 def get_block_value_from_response(block: dict) -> str:
@@ -465,3 +488,29 @@ def build_properties_for_request(page: NotionPage) -> dict:
         else:
             raise Exception(f"Invalid Notion property type: {notionProperty.type}")
     return properties
+
+
+def build_icon_for_request(page: NotionPage) -> dict:
+    assert page is not None, "Page cannot be None"
+    assert page.icon is not None, "Icon cannot be None"
+    if page.icon.type == NOTION_ICON_TYPES["emoji"]:
+        return {
+            "type": NOTION_ICON_TYPES["emoji"],
+            "emoji": page.icon.value,
+        }
+    elif page.icon.type == NOTION_ICON_TYPES["external"]:
+        return {
+            "type": NOTION_ICON_TYPES["external"],
+            "external": {
+                "url": page.icon.value,
+            },
+        }
+    elif page.icon.type == NOTION_ICON_TYPES["file"]:
+        return {
+            "type": NOTION_ICON_TYPES["file"],
+            "file": {
+                "url": page.icon.value,
+            },
+        }
+    else:
+        raise Exception(f"Invalid Notion icon type: {page.icon.type}")
