@@ -146,16 +146,20 @@ def build_blocks_for_request(page: NotionPage) -> list:
     blocks: list = []
     for notionBlock in page.blocks:
         if notionBlock.type == "paragraph":
+            assert isinstance(
+                notionBlock.value, str
+            ), "When type is paragraph, value must be a string"
+            paragraph_content: str = notionBlock.value
             blocks.append(
                 {
                     "object": "block",
                     "type": "paragraph",
                     "paragraph": {
-                        "text": [
+                        "rich_text": [
                             {
                                 "type": "text",
                                 "text": {
-                                    "content": notionBlock.value,
+                                    "content": paragraph_content,
                                 },
                             }
                         ]
@@ -163,16 +167,20 @@ def build_blocks_for_request(page: NotionPage) -> list:
                 }
             )
         elif notionBlock.type == "heading_1":
+            assert isinstance(
+                notionBlock.value, str
+            ), "When type is heading_1, value must be a string"
+            heading_1_content: str = notionBlock.value
             blocks.append(
                 {
                     "object": "block",
                     "type": "heading_1",
                     "heading_1": {
-                        "text": [
+                        "rich_text": [
                             {
                                 "type": "text",
                                 "text": {
-                                    "content": notionBlock.value,
+                                    "content": heading_1_content,
                                 },
                             }
                         ]
@@ -180,16 +188,20 @@ def build_blocks_for_request(page: NotionPage) -> list:
                 }
             )
         elif notionBlock.type == "heading_2":
+            assert isinstance(
+                notionBlock.value, str
+            ), "When type is heading_2, value must be a string"
+            heading_2_content: str = notionBlock.value
             blocks.append(
                 {
                     "object": "block",
                     "type": "heading_2",
                     "heading_2": {
-                        "text": [
+                        "rich_text": [
                             {
                                 "type": "text",
                                 "text": {
-                                    "content": notionBlock.value,
+                                    "content": heading_2_content,
                                 },
                             }
                         ]
@@ -197,50 +209,62 @@ def build_blocks_for_request(page: NotionPage) -> list:
                 }
             )
         elif notionBlock.type == "heading_3":
+            assert isinstance(
+                notionBlock.value, str
+            ), "When type is heading_3, value must be a string"
+            heading_3_content: str = notionBlock.value
             blocks.append(
                 {
                     "object": "block",
                     "type": "heading_3",
                     "heading_3": {
-                        "text": [
+                        "rich_text": [
                             {
                                 "type": "text",
                                 "text": {
-                                    "content": notionBlock.value,
+                                    "content": heading_3_content,
                                 },
                             }
                         ]
                     },
                 }
             )
-        elif notionBlock.type == "bulleted_list":
+        elif notionBlock.type == "bulleted_list_item":
+            assert isinstance(
+                notionBlock.value, str
+            ), "When type is bulleted_list_item, value must be a string"
+            bulleted_single_item_content: str = notionBlock.value
             blocks.append(
                 {
                     "object": "block",
-                    "type": "bulleted_list",
-                    "bulleted_list": {
-                        "text": [
+                    "type": "bulleted_list_item",
+                    "bulleted_list_item": {
+                        "rich_text": [
                             {
                                 "type": "text",
                                 "text": {
-                                    "content": notionBlock.value,
+                                    "content": bulleted_single_item_content,
                                 },
                             }
                         ]
                     },
                 }
             )
-        elif notionBlock.type == "numbered_list":
+        elif notionBlock.type == "numbered_list_item":
+            assert isinstance(
+                notionBlock.value, str
+            ), "When type is numbered_list_item, value must be a string"
+            numbered_single_item_content: str = notionBlock.value
             blocks.append(
                 {
                     "object": "block",
-                    "type": "numbered_list",
-                    "numbered_list": {
-                        "text": [
+                    "type": "numbered_list_item",
+                    "numbered_list_item": {
+                        "rich_text": [
                             {
                                 "type": "text",
                                 "text": {
-                                    "content": notionBlock.value,
+                                    "content": numbered_single_item_content,
                                 },
                             }
                         ]
@@ -248,16 +272,20 @@ def build_blocks_for_request(page: NotionPage) -> list:
                 }
             )
         elif notionBlock.type == "to_do":
+            assert isinstance(
+                notionBlock.value, str
+            ), "When type is to_do, value must be a string"
+            todo_single_item_content: str = notionBlock.value
             blocks.append(
                 {
                     "object": "block",
                     "type": "to_do",
                     "to_do": {
-                        "text": [
+                        "rich_text": [
                             {
                                 "type": "text",
                                 "text": {
-                                    "content": notionBlock.value,
+                                    "content": todo_single_item_content,
                                 },
                             }
                         ]
@@ -265,16 +293,20 @@ def build_blocks_for_request(page: NotionPage) -> list:
                 }
             )
         elif notionBlock.type == "toggle":
+            assert isinstance(
+                notionBlock.value, str
+            ), "When type is toggle, value must be a string"
+            toggle_single_item_content: str = notionBlock.value
             blocks.append(
                 {
                     "object": "block",
                     "type": "toggle",
                     "toggle": {
-                        "text": [
+                        "rich_text": [
                             {
                                 "type": "text",
                                 "text": {
-                                    "content": notionBlock.value,
+                                    "content": toggle_single_item_content,
                                 },
                             }
                         ]
@@ -282,6 +314,10 @@ def build_blocks_for_request(page: NotionPage) -> list:
                 }
             )
         elif notionBlock.type == "image":
+            assert isinstance(
+                notionBlock.value, str
+            ), "When type is image, value must be a string"
+            image_url: str = notionBlock.value
             blocks.append(
                 {
                     "object": "block",
@@ -290,12 +326,16 @@ def build_blocks_for_request(page: NotionPage) -> list:
                         "caption": [],
                         "type": "external",
                         "external": {
-                            "url": notionBlock.value,
+                            "url": image_url,
                         },
                     },
                 }
             )
         elif notionBlock.type == "video":
+            assert isinstance(
+                notionBlock.value, str
+            ), "When type is video, value must be a string"
+            video_url: str = notionBlock.value
             blocks.append(
                 {
                     "object": "block",
@@ -304,12 +344,18 @@ def build_blocks_for_request(page: NotionPage) -> list:
                         "caption": [],
                         "type": "external",
                         "external": {
-                            "url": notionBlock.value,
+                            "url": video_url,
                         },
                     },
                 }
             )
         elif notionBlock.type == "file":
+            assert isinstance(
+                notionBlock.value, dict
+            ), "When type is file, value must be a dictionary"
+            file: dict = notionBlock.value
+            file_name: str = file["name"]
+            file_url: str = file["url"]
             blocks.append(
                 {
                     "object": "block",
@@ -318,32 +364,50 @@ def build_blocks_for_request(page: NotionPage) -> list:
                         "caption": [],
                         "type": "external",
                         "external": {
-                            "url": notionBlock.value,
+                            "url": file_url,
                         },
+                        "name": file_name,
                     },
                 }
             )
         elif notionBlock.type == "code":
+            assert isinstance(notionBlock.value, dict), "When type is code, value must be a dictionary"
+            code: dict = notionBlock.value
+            code_content: str = code["content"]
+            code_language: str = code["language"]
             blocks.append(
                 {
                     "object": "block",
                     "type": "code",
                     "code": {
-                        "text": notionBlock.value,
+                        "caption": [],
+                        "rich_text": [
+                            {
+                                "type": "text",
+                                "text": {
+                                    "content": code_content,
+                                },
+                            }
+                        ],
+                        "language": code_language
                     },
                 }
             )
         elif notionBlock.type == "quote":
+            assert isinstance(
+                notionBlock.value, str
+            ), "When type is quote, value must be a string"
+            quote_content: str = notionBlock.value
             blocks.append(
                 {
                     "object": "block",
                     "type": "quote",
                     "quote": {
-                        "text": [
+                        "rich_text": [
                             {
                                 "type": "text",
                                 "text": {
-                                    "content": notionBlock.value,
+                                    "content": quote_content,
                                 },
                             }
                         ]
@@ -362,6 +426,9 @@ def build_properties_for_request(page: NotionPage) -> dict:
     properties: dict = {}
     for notionProperty in page.properties:
         if notionProperty.type == "title":
+            assert isinstance(
+                notionProperty.value, str
+            ), "When type is title, value must be a string"
             properties[notionProperty.name] = {
                 "title": [
                     {
@@ -372,6 +439,9 @@ def build_properties_for_request(page: NotionPage) -> dict:
                 ]
             }
         elif notionProperty.type == "rich_text":
+            assert isinstance(
+                notionProperty.value, str
+            ), "When type is rich_text, value must be a string"
             properties[notionProperty.name] = {
                 "rich_text": [
                     {
@@ -382,109 +452,105 @@ def build_properties_for_request(page: NotionPage) -> dict:
                 ]
             }
         elif notionProperty.type == "number":
+            assert isinstance(
+                notionProperty.value, float
+            ), "When type is number, value must be a float"
             properties[notionProperty.name] = {
                 "number": notionProperty.value,
             }
         elif notionProperty.type == "select":
+            assert isinstance(
+                notionProperty.value, dict
+            ), "When type is select, value must be a dictionary"
+            selection_value: str = notionProperty.value["name"]
+            selection_color: str = notionProperty.value["color"]
             properties[notionProperty.name] = {
-                "select": {
-                    "name": notionProperty.value,
-                }
+                "select": {"name": selection_value, "color": selection_color}
             }
         elif notionProperty.type == "multi_select":
-            properties[notionProperty.name] = {
-                "multi_select": [
-                    {
-                        "name": notionProperty.value,
-                    }
-                ]
-            }
+            assert isinstance(
+                notionProperty.value, list
+            ), "When type is multi_select, value must be a list of dictionaries"
+            selection_list: list[dict] = notionProperty.value
+            selections: list[dict] = [
+                {"name": selection["name"], "color": selection["color"]}
+                for selection in selection_list
+            ]
+            properties[notionProperty.name] = {"multi_select": selections}
         elif notionProperty.type == "date":
+            assert isinstance(
+                notionProperty.value, str
+            ), "When type is date, value must be a string"
             properties[notionProperty.name] = {
                 "date": {
                     "start": notionProperty.value,
                 }
             }
         elif notionProperty.type == "people":
-            properties[notionProperty.name] = {
-                "people": [
-                    {
-                        "object": "user",
-                        "id": notionProperty.value,
-                    }
-                ]
-            }
+            assert isinstance(
+                notionProperty.value, list
+            ), "When type is people, value must be a list of strings"
+            persons: list[str] = notionProperty.value
+            person_ids: list[str] = [
+                {"object": "user", "id": person_id} for person_id in persons
+            ]
+            properties[notionProperty.name] = {"people": person_ids}
         elif notionProperty.type == "files":
-            properties[notionProperty.name] = {
-                "files": [
-                    {
-                        "object": "file",
-                        "id": notionProperty.value,
-                    }
-                ]
-            }
+            assert isinstance(
+                notionProperty.value, list
+            ), "When type is files, value must be a list of strings"
+            files: list[dict] = notionProperty.value
+            files_obj: list[str] = [
+                {"name": file["name"], "external": {"url": file["url"]}} for file in files
+            ]
+            properties[notionProperty.name] = {"files": files_obj}
         elif notionProperty.type == "checkbox":
+            assert isinstance(
+                notionProperty.value, bool
+            ), "When type is checkbox, value must be a boolean"
             properties[notionProperty.name] = {
                 "checkbox": notionProperty.value,
             }
         elif notionProperty.type == "url":
+            assert isinstance(
+                notionProperty.value, str
+            ), "When type is url, value must be a string"
             properties[notionProperty.name] = {
                 "url": notionProperty.value,
             }
         elif notionProperty.type == "email":
+            assert isinstance(
+                notionProperty.value, str
+            ), "When type is email, value must be a string"
             properties[notionProperty.name] = {
                 "email": notionProperty.value,
             }
         elif notionProperty.type == "phone_number":
+            assert isinstance(
+                notionProperty.value, str
+            ), "When type is phone_number, value must be a string"
             properties[notionProperty.name] = {
                 "phone_number": notionProperty.value,
             }
         elif notionProperty.type == "formula":
-            properties[notionProperty.name] = {
-                "formula": {
-                    "expression": notionProperty.value,
-                }
-            }
+            raise Exception("Formulas are not supported for now")
         elif notionProperty.type == "relation":
-            properties[notionProperty.name] = {
-                "relation": [
-                    {
-                        "id": notionProperty.value,
-                    }
-                ]
-            }
+            assert isinstance(
+                notionProperty.value, list
+            ), "When type is relation, value must be a list of strings"
+            ids: list[str] = notionProperty.value
+            relation: list[dict] = [{"id": id} for id in ids]
+            properties[notionProperty.name] = {"relation": relation}
         elif notionProperty.type == "rollup":
-            properties[notionProperty.name] = {
-                "rollup": {
-                    "array": [
-                        {
-                            "id": notionProperty.value,
-                        }
-                    ]
-                }
-            }
+            raise Exception("Rollups are not supported for now")
         elif notionProperty.type == "created_time":
-            properties[notionProperty.name] = {
-                "created_time": notionProperty.value,
-            }
+            raise Exception("Created time should not be set manually")
         elif notionProperty.type == "last_edited_time":
-            properties[notionProperty.name] = {
-                "last_edited_time": notionProperty.value,
-            }
+            raise Exception("Last edited time should not be set manually")
         elif notionProperty.type == "last_edited_by":
-            properties[notionProperty.name] = {
-                "last_edited_by": {
-                    "object": "user",
-                    "id": notionProperty.value,
-                }
-            }
+            raise Exception("Last edited by should not be set manually")
         elif notionProperty.type == "created_by":
-            properties[notionProperty.name] = {
-                "created_by": {
-                    "object": "user",
-                    "id": notionProperty.value,
-                }
-            }
+            raise Exception("Created by should not be set manually")
         else:
             raise Exception(f"Invalid Notion property type: {notionProperty.type}")
     return properties

@@ -4,7 +4,7 @@ sys.path.insert(0, os.path.abspath("."))
 
 
 def validate_http_response(status_code: int, reason: str, response_data: bytes):
-    if status_code < 200:
+    if 400 <= status_code:
         if reason is not None and reason != "":
             if response_data is not None and response_data != b"":
                 raise Exception(

@@ -31,9 +31,10 @@ class Container(containers.DeclarativeContainer):
         log_tool=log_tool,
         notion_block_manager=notion_block_manager,
     )
-
+    
     wiring_config = containers.WiringConfiguration(
         modules=[
             "main.entrypoint.controllers.main_controller",
+            "main.entrypoint.controllers.notion.notion_page_manager_controller",
         ]
     )

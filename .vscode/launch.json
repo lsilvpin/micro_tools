@@ -11,7 +11,8 @@
                 "--reload"
             ],
             "env": {
-                "environment": "dev"
+                "environment": "dev",
+                "NOTION_API_KEY": "secret_duf05AEu4TkFdUC39rpJOR1PSEVJdxLVx5mxgDfLtsU"
             }
         }
     ]
