@@ -36,7 +36,9 @@ def build_page_from_response(response: dict) -> NotionPage:
     parent: dict = response["parent"]
     archived: bool = response["archived"]
     url: str = response["url"]
-    request_id: str = response["request_id"]
+    request_id: str = ""
+    if "request_id" in response:
+        request_id: str = response["request_id"]
     page_icon: NotionIcon = get_icon_from_response(response)
     properties: dict = response["properties"]
     notionProperties: list = []
@@ -62,23 +64,25 @@ def build_page_from_response(response: dict) -> NotionPage:
     )
 
 
-def get_icon_from_response(response: dict) -> NotionIcon:
+def get_icon_from_response(response: dict) -> NotionIcon | None:
     assert response is not None, "Response cannot be None"
     assert "object" in response, "Response object cannot be None"
     assert response["object"] == "page", "Response object must be a page"
-    assert "icon" in response, "Response icon cannot be None"
-    assert response["icon"] is not None, "Response icon cannot be None"
-    icon: dict = response["icon"]
-    assert "type" in icon, "Icon type cannot be None"
-    icon_type: str = icon["type"]
-    if icon_type == NOTION_ICON_TYPES["emoji"]:
-        return NotionIcon(icon_type, icon["emoji"])
-    elif icon_type == NOTION_ICON_TYPES["external"]:
-        return NotionIcon(icon_type, icon["external"]["url"])
-    elif icon_type == NOTION_ICON_TYPES["file"]:
-        return NotionIcon(icon_type, icon["file"]["url"])
+    if "icon" in response and response["icon"] is not None:
+        assert response["icon"] is not None, "Response icon cannot be None"
+        icon: dict = response["icon"]
+        assert "type" in icon, "Icon type cannot be None"
+        icon_type: str = icon["type"]
+        if icon_type == NOTION_ICON_TYPES["emoji"]:
+            return NotionIcon(icon_type, icon["emoji"])
+        elif icon_type == NOTION_ICON_TYPES["external"]:
+            return NotionIcon(icon_type, icon["external"]["url"])
+        elif icon_type == NOTION_ICON_TYPES["file"]:
+            return NotionIcon(icon_type, icon["file"]["url"])
+        else:
+            raise Exception(f"Invalid icon type: {icon_type}")
     else:
-        raise Exception(f"Invalid icon type: {icon_type}")
+        return None
 
 
 def get_block_value_from_response(block: dict) -> Any:
@@ -149,10 +153,19 @@ def get_prop_value_from_response(prop: dict) -> Any:
         return people_ids
     elif prop_type == "files":
         files: list[dict] = prop["files"]
-        return [
-            {"name": str(file["name"]), "url": str(file["external"]["url"])}
-            for file in files
-        ]
+        files_to_return: list[dict] = []
+        for file in files:
+            file_obj: dict = {}
+            if "external" in file:
+                file_obj["name"] = str(file["name"])
+                file_obj["url"] = str(file["external"]["url"])
+            elif "file" in file:
+                file_obj["name"] = str(file["name"])
+                file_obj["url"] = str(file["file"]["url"])
+            else:
+                raise Exception(f"Unrecognized file object: {file}")
+            files_to_return.append(file_obj)
+        return files_to_return
     elif prop_type == "checkbox":
         return bool(prop["checkbox"])
     elif prop_type == "url":
