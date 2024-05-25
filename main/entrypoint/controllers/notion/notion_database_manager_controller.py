@@ -481,6 +481,211 @@ async def read_database(
         )
 
 
+@router.put(
+    "/databases/{database_id}/update",
+    tags=["Notion Database Management"],
+    responses={
+        200: {
+            "description": "Success",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Banco de dados c7c1007a-d112-4b8c-a621-a769adaf7dda atualizado com sucesso."
+                    }
+                }
+            },
+        },
+        400: {
+            "description": "Bad Request",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Invalid request",
+                        "StackTrace": "Traceback...",
+                    }
+                }
+            },
+        },
+        500: {
+            "description": "Internal Server Error",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Internal Server Error",
+                        "StackTrace": "Traceback...",
+                    }
+                }
+            },
+        },
+    },
+)
+@inject
+async def update_database(
+    database_id: str = Path(
+        ...,
+        title="Database ID",
+        description="ID do banco de dados do Notion",
+        example="c7c1007a-d112-4b8c-a621-a769adaf7dda",
+    ),
+    body: dict = Body(
+        ...,
+        example={
+            "is_inline": True,
+            "icon": {"type": "emoji", "value": "🚀"},
+            "title": "Banco de dados",
+            "description": "Descrição do db",
+            "properties": [
+                {"name": "Arquivo", "type": "files", "value": None, "options": {}},
+                {
+                    "name": "Número Telefone",
+                    "type": "phone_number",
+                    "value": None,
+                    "options": {},
+                },
+                {
+                    "name": "Select",
+                    "type": "select",
+                    "value": None,
+                    "options": {
+                        "options": [
+                            {
+                                "name": "Alface",
+                                "color": "green",
+                            },
+                            {
+                                "name": "Cebola",
+                                "color": "pink",
+                            },
+                            {
+                                "name": "Kacto",
+                                "color": "yellow",
+                            },
+                            {
+                                "name": "Option 1",
+                                "color": "gray",
+                            },
+                        ]
+                    },
+                },
+                {"name": "URL", "type": "url", "value": None, "options": {}},
+                {
+                    "name": "Criado por",
+                    "type": "created_by",
+                    "value": None,
+                    "options": {},
+                },
+                {
+                    "name": "Última edição",
+                    "type": "last_edited_time",
+                    "value": None,
+                    "options": {},
+                },
+                {
+                    "name": "Tags",
+                    "type": "multi_select",
+                    "value": None,
+                    "options": {
+                        "options": [
+                            {
+                                "name": "Tag A",
+                                "color": "orange",
+                            },
+                            {
+                                "name": "Tag B",
+                                "color": "blue",
+                            },
+                            {
+                                "name": "Tag C",
+                                "color": "gray",
+                            },
+                            {
+                                "name": "Tag D",
+                                "color": "yellow",
+                            },
+                            {
+                                "name": "Tag 1",
+                                "color": "gray",
+                            },
+                            {
+                                "name": "Tag 2",
+                                "color": "blue",
+                            },
+                        ]
+                    },
+                },
+                {
+                    "name": "Última edição por",
+                    "type": "last_edited_by",
+                    "value": None,
+                    "options": {},
+                },
+                {"name": "Data", "type": "date", "value": None, "options": {}},
+                {
+                    "name": "Number",
+                    "type": "number",
+                    "value": None,
+                    "options": {"format": "number"},
+                },
+                {
+                    "name": "Criado em",
+                    "type": "created_time",
+                    "value": None,
+                    "options": {},
+                },
+                {"name": "Email", "type": "email", "value": None, "options": {}},
+                {"name": "Pessoa", "type": "people", "value": None, "options": {}},
+                {
+                    "name": "Description",
+                    "type": "rich_text",
+                    "value": None,
+                    "options": {},
+                },
+                {"name": "IsTrue", "type": "checkbox", "value": None, "options": {}},
+                {"name": "Name", "type": "title", "value": None, "options": {}},
+            ],
+        },
+    ),
+    log_tool: LogTool = Depends(Provide[Container.log_tool]),
+    notion_database_manager: NotionDatabaseManager = Depends(
+        Provide[Container.notion_database_manager]
+    ),
+):
+    """
+    Atualiza um banco de dados no Notion.
+    """
+    try:
+        log_tool.info("Atualizando banco de dados no Notion.")
+        database: NotionDatabase = NotionDatabase.from_dict(body)
+        response: dict = notion_database_manager.update_database(database_id, database)
+        log_tool.info(f"Resposta da API do Notion: {response}")
+        msg: str = f"Banco de dados {database_id} atualizado com sucesso."
+        return {"Message": msg}
+    except ValidationException as ve:
+        error_msg: str = ve.args[0]
+        log_tool.error(f"Erro ao validar os dados da requisição: {error_msg}")
+        stack_trace: str = traceback.format_exc()
+        log_tool.error(f"Traceback: {stack_trace}")
+        return JSONResponse(
+            content={
+                "Message": error_msg,
+                "StackTrace": stack_trace,
+            },
+            status_code=400,
+        )
+    except Exception as e:
+        error_msg: str = e.args[0]
+        log_tool.error(f"Erro ao atualizar banco de dados: {error_msg}")
+        stack_trace: str = traceback.format_exc()
+        log_tool.error(f"Traceback: {stack_trace}")
+        return JSONResponse(
+            content={
+                "Message": error_msg,
+                "StackTrace": stack_trace,
+            },
+            status_code=500,
+        )
+
+
 @router.patch(
     "/databases/{database_id}/archive",
     tags=["Notion Database Management"],

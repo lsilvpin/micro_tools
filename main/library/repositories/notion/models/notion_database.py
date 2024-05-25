@@ -69,18 +69,17 @@ class NotionDatabase:
         return payload
 
     def to_update_payload(self) -> dict:
-        assert self.id is not None, "database_id cannot be None"
         assert self.is_inline is not None, "is_inline cannot be None"
-        assert self.parent_id is not None, "parent cannot be None"
         assert self.icon is not None, "icon cannot be None"
         assert self.title is not None, "title cannot be None"
         assert self.description is not None, "description cannot be None"
         assert self.properties is not None, "properties cannot be None"
         assert len(self.properties) > 0, "properties cannot be empty"
         payload: dict = {
+            "is_inline": bool(self.is_inline),
             "icon": self.icon.to_payload(),
-            "title": {"text": {"content": str(self.title)}},
-            "description": {"text": {"content": str(self.description)}},
+            "title": [{"text": {"content": str(self.title)}}],
+            "description": [{"text": {"content": str(self.description)}}],
             "properties": {},
         }
         for prop in self.properties:
