@@ -165,9 +165,6 @@ class NotionDatabase:
             "archived" in data
         ), "Database Data from read response should have an archived"
         assert "url" in data, "Database Data from read response should have an url"
-        assert (
-            "request_id" in data
-        ), "Database Data from read response should have a request_id"
         database_id: str = str(data["id"])
         is_inline: bool = bool(data["is_inline"])
         parent_id: str = NotionDatabase.get_parent_from_response(data["parent"])
@@ -181,7 +178,9 @@ class NotionDatabase:
         )
         archived: bool = bool(data["archived"])
         url: str = str(data["url"])
-        request_id: str = str(data["request_id"])
+        request_id: str | None = None
+        if "request_id" in data:
+            request_id = str(data["request_id"])
         db: NotionDatabase = NotionDatabase(
             icon,
             title,

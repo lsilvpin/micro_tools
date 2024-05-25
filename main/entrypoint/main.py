@@ -7,6 +7,7 @@ from main.library.di_container import Container
 from main.entrypoint.controllers.main_controller import router as main_controller_router
 from main.entrypoint.controllers.notion.notion_page_manager_controller import router as notion_page_manager_controller_router
 from main.entrypoint.controllers.notion.notion_database_manager_controller import router as notion_database_manager_controller_router
+from main.entrypoint.controllers.notion.notion_searcher_controller import router as notion_searcher_controller_router
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
@@ -23,6 +24,7 @@ app.container = container
 app.include_router(main_controller_router)
 app.include_router(notion_page_manager_controller_router)
 app.include_router(notion_database_manager_controller_router)
+app.include_router(notion_searcher_controller_router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
