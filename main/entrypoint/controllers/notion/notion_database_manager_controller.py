@@ -2,8 +2,12 @@ import traceback
 from dependency_injector.wiring import inject, Provide
 from fastapi.responses import JSONResponse
 from main.library.di_container import Container
+from main.library.repositories.notion.core.notion_database_manager import (
+    NotionDatabaseManager,
+)
 from main.library.repositories.notion.core.notion_page_manager import NotionPageManager
 from main.library.repositories.notion.models.notion_custom_icon import NotionIcon
+from main.library.repositories.notion.models.notion_database import NotionDatabase
 from main.library.repositories.notion.models.notion_page import NotionPage
 from main.library.repositories.notion.models.notion_page_block import NotionPageBlock
 from main.library.repositories.notion.models.notion_property import NotionProperty
@@ -17,14 +21,14 @@ router = APIRouter()
 
 
 @router.post(
-    "/pages/{database_id}/create",
+    "/databases/{page_id}/create",
     tags=["Notion Management"],
     responses={
         200: {
             "description": "Success",
             "content": {
                 "application/json": {
-                    "example": {"page_id": "6301f640e21c4526a72ed96e7d4ba71d"}
+                    "example": {"database_id": "6301f640e21c4526a72ed96e7d4ba71d"}
                 }
             },
         },
@@ -53,136 +57,79 @@ router = APIRouter()
     },
 )
 @inject
-async def create_page(
-    database_id: str = Path(
+async def create_database(
+    page_id: str = Path(
         ...,
-        title="Database ID",
-        description="ID do banco de dados do Notion",
-        example="c7c1007a-d112-4b8c-a621-a769adaf7dda",
+        title="Page ID",
+        description="ID da página do Notion",
+        example="6f48b54c-094d-4339-aa90-89f9985fb6c7",
     ),
     body: dict = Body(
         ...,
         example={
-            "icon": {"type": "emoji", "value": "🚀"},
-            "properties": [
-                {"name": "Name", "type": "title", "value": "My Page"},
-                {
-                    "name": "Description",
-                    "type": "rich_text",
-                    "value": "This is a description",
+            "is_inline": True,
+            "parent": {
+                "type": "page_id",
+                "page_id": "6f48b54c-094d-4339-aa90-89f9985fb6c7",
+            },
+            "icon": {"type": "emoji", "emoji": "🚀"},
+            "title": [{"text": {"content": "Banco de dados"}}],
+            "description": [{"text": {"content": "Descrição do db"}}],
+            "properties": {
+                "Criado por": {"created_by": {}},
+                "Data": {"date": {}},
+                "Number": {"number": {"format": "number"}},
+                "Arquivo": {"files": {}},
+                "Última edição": {"last_edited_time": {}},
+                "Número Telefone": {"phone_number": {}},
+                "URL": {"url": {}},
+                "Criado em": {"created_time": {}},
+                "Description": {"rich_text": {}},
+                "Select": {
+                    "select": {
+                        "options": [
+                            {"name": "Alface", "color": "green"},
+                            {"name": "Cebola", "color": "pink"},
+                            {"name": "Kacto", "color": "yellow"},
+                            {"name": "Option 1", "color": "gray"},
+                        ]
+                    }
                 },
-                {"name": "Number", "type": "number", "value": 123.45},
-                {
-                    "name": "Select",
-                    "type": "select",
-                    "value": {"name": "Option 1", "color": "gray"},
+                "IsTrue": {"checkbox": {}},
+                "Pessoa": {"people": {}},
+                "Tags": {
+                    "multi_select": {
+                        "options": [
+                            {"name": "Tag A", "color": "orange"},
+                            {"name": "Tag B", "color": "blue"},
+                            {"name": "Tag C", "color": "gray"},
+                            {"name": "Tag D", "color": "yellow"},
+                            {"name": "Tag 1", "color": "gray"},
+                            {"name": "Tag 2", "color": "blue"},
+                        ]
+                    }
                 },
-                {
-                    "name": "Tags",
-                    "type": "multi_select",
-                    "value": [
-                        {"name": "Tag 1", "color": "gray"},
-                        {"name": "Tag 2", "color": "blue"},
-                    ],
-                },
-                {"name": "Data", "type": "date", "value": "2024-05-24"},
-                {"name": "IsTrue", "type": "checkbox", "value": True},
-                {
-                    "name": "Pessoa",
-                    "type": "people",
-                    "value": ["6595192e-1c62-4f33-801c-84424f2ffa9c"],
-                },
-                {
-                    "name": "Arquivo",
-                    "type": "files",
-                    "value": [
-                        {
-                            "name": "MeninaBonita.jpeg",
-                            "url": "https://images.unsplash.com/photo-1513097633097-329a3a64e0d4?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb",
-                        }
-                    ],
-                },
-                {"name": "URL", "type": "url", "value": "https://www.google.com"},
-                {"name": "Email", "type": "email", "value": "fulano@email.com"},
-                {
-                    "name": "Número Telefone",
-                    "type": "phone_number",
-                    "value": "+5511999999999",
-                },
-                {
-                    "name": "TB_MICRO_TOOLS_AGENTS",
-                    "type": "relation",
-                    "value": ["4c65fc9c-2ff4-462e-9493-71ebb14c22cb"],
-                },
-            ],
-            "blocks": [
-                {
-                    "type": "image",
-                    "value": "https://images.unsplash.com/photo-1513097633097-329a3a64e0d4?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb",
-                },
-                {"type": "heading_1", "value": "Título 1"},
-                {"type": "heading_2", "value": "Título 2"},
-                {"type": "heading_3", "value": "Título 3"},
-                {"type": "paragraph", "value": "Este é um parágrafo."},
-                {
-                    "type": "video",
-                    "value": "https://www.youtube.com/watch?v=wVL6z7lWvjQ&list=RDwVL6z7lWvjQ&start_radio=1",
-                },
-                {"type": "bulleted_list_item", "value": "Item de lista"},
-                {"type": "numbered_list_item", "value": "Item de lista numerada"},
-                {"type": "to_do", "value": "Tarefa a fazer"},
-                {"type": "toggle", "value": "Alternar"},
-                {
-                    "type": "file",
-                    "value": {
-                        "name": "MeninaBonita.jpeg",
-                        "url": "https://images.unsplash.com/photo-1513097633097-329a3a64e0d4?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb",
-                    },
-                },
-                {
-                    "type": "code",
-                    "value": {
-                        "content": "print('Hello, World!')",
-                        "language": "python",
-                    },
-                },
-                {"type": "quote", "value": "Citação"},
-            ],
+                "Email": {"email": {}},
+                "Última edição por": {"last_edited_by": {}},
+                "Name": {"title": {}},
+            },
         },
     ),
     log_tool: LogTool = Depends(Provide[Container.log_tool]),
-    notion_page_manager: NotionPageManager = Depends(
-        Provide[Container.notion_page_manager]
+    notion_database_manager: NotionDatabaseManager = Depends(
+        Provide[Container.notion_database_manager]
     ),
 ):
     """
-    Cria uma página no Notion.
+    Cria um banco de dados no Notion.
     """
     try:
-        log_tool.info("Criando página no Notion.")
-        assert database_id is not None, "ID do banco de dados não pode ser nulo."
-        notion_icon: NotionIcon = NotionIcon(
-            icon_type=body["icon"]["type"], icon_value=body["icon"]["value"]
-        )
-        page_properties: list[NotionProperty] = []
-        for prop in body["properties"]:
-            page_properties.append(
-                NotionProperty(
-                    name=prop["name"], prop_type=prop["type"], value=prop["value"]
-                )
-            )
-        page_blocks: list[NotionPageBlock] = []
-        for block in body["blocks"]:
-            page_blocks.append(
-                NotionPageBlock(block_type=block["type"], value=block["value"])
-            )
-        notion_page: NotionPage = NotionPage(notion_icon, page_properties, page_blocks)
-        log_tool.info(f"Payload: {notion_page}")
-        response_obj: dict = notion_page_manager.create_page(notion_page, database_id)
-        log_tool.info(f"Objeto retornado pela API do Notion: {response_obj}")
-        created_id: str = response_obj["id"]
-        log_tool.info(f"Página criada com sucesso. ID: {created_id}")
-        return {"page_id": created_id}
+        log_tool.info("Criando banco de dados no Notion.")
+        database: NotionDatabase = NotionDatabase.from_create_payload(body)
+        response: dict = notion_database_manager.create_database(page_id, database)
+        log_tool.info(f"Resposta da API do Notion: {response}")
+        database_id: str = response["id"]
+        return {"database_id": database_id}
     except ValidationException as ve:
         error_msg: str = ve.args[0]
         log_tool.error(f"Erro ao validar os dados da requisição: {error_msg}")

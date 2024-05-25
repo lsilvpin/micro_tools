@@ -2,6 +2,9 @@ from dependency_injector import providers, containers
 from main.library.repositories.notion.core.notion_block_manager import (
     NotionBlockManager,
 )
+from main.library.repositories.notion.core.notion_database_manager import (
+    NotionDatabaseManager,
+)
 from main.library.repositories.notion.core.notion_page_manager import NotionPageManager
 from main.library.tools.core.http_client_tool import HttpClientTool
 from main.library.tools.core.log_tool import LogTool
@@ -31,10 +34,16 @@ class Container(containers.DeclarativeContainer):
         log_tool=log_tool,
         notion_block_manager=notion_block_manager,
     )
-    
+    notion_database_manager = providers.Factory(
+        NotionDatabaseManager,
+        settings_tool=settings_tool,
+        log_tool=log_tool,
+    )
+
     wiring_config = containers.WiringConfiguration(
         modules=[
             "main.entrypoint.controllers.main_controller",
             "main.entrypoint.controllers.notion.notion_page_manager_controller",
+            "main.entrypoint.controllers.notion.notion_database_manager_controller",
         ]
     )
