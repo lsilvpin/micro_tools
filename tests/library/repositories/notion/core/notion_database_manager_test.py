@@ -40,6 +40,7 @@ def test_should_create_database(mocker):
     mocker.patch("http.client.HTTPSConnection", return_value=conn)
 
     # Arrange
+    token: str = "secret"
     page_id: str = "6f48b54c-094d-4339-aa90-89f9985fb6c7"
     icon: NotionIcon = NotionIcon("emoji", "👩🏻‍💻")
     nome: NotionProperty = NotionProperty(
@@ -61,7 +62,9 @@ def test_should_create_database(mocker):
     )
 
     # Act
-    response_data: dict = notion_database_manager.create_database(page_id, database)
+    response_data: dict = notion_database_manager.create_database(
+        token, page_id, database
+    )
 
     # Assert
     assert response_data is not None
@@ -85,6 +88,7 @@ def test_should_create_database(mocker):
     assert response_data["developer_survey"] is not None
     assert response_data["request_id"] is not None
 
+
 def test_should_read_database_by_id(mocker):
     # Mocks
     successResponse = mocker.Mock()
@@ -96,15 +100,18 @@ def test_should_read_database_by_id(mocker):
     conn = mocker.Mock()
     conn.getresponse.return_value = successResponse
     mocker.patch("http.client.HTTPSConnection", return_value=conn)
-    
+
     # Arrange
+    token: str = "secret"
     database_id: str = "1c62e8a0-bb82-46d9-8000-71c3679e840e"
-    
+
     # Act
-    response_data: NotionDatabase = notion_database_manager.read_database_by_id(database_id)
-    
+    response_data: NotionDatabase = notion_database_manager.read_database_by_id(
+        token, database_id
+    )
+
     # Assert
-    assert response_data is not None    
+    assert response_data is not None
     assert response_data.id == "1c62e8a0-bb82-46d9-8000-71c3679e840e"
     assert response_data.icon is not None
     assert response_data.title is not None
@@ -116,7 +123,8 @@ def test_should_read_database_by_id(mocker):
     assert response_data.url is not None
     assert response_data.archived is False
     assert response_data.request_id is not None
-    assert response_data.url == "https://www.notion.so/1c62e8a0bb8246d9800071c3679e840e" 
+    assert response_data.url == "https://www.notion.so/1c62e8a0bb8246d9800071c3679e840e"
+
 
 def test_should_update_database(mocker):
     # Mocks
@@ -131,6 +139,7 @@ def test_should_update_database(mocker):
     mocker.patch("http.client.HTTPSConnection", return_value=conn)
 
     # Arrange
+    token: str = "secret"
     database_id: str = "c7c1007a-d112-4b8c-a621-a769adaf7dda"
     icon: NotionIcon = NotionIcon("emoji", "👩🏻‍💻")
     nome: NotionProperty = NotionProperty(
@@ -152,8 +161,10 @@ def test_should_update_database(mocker):
     )
 
     # Act
-    response_data: dict = notion_database_manager.update_database(database_id, database)
-    
+    response_data: dict = notion_database_manager.update_database(
+        token, database_id, database
+    )
+
     # Assert
     assert response_data is not None
     assert response_data["object"] == "database"
@@ -175,7 +186,8 @@ def test_should_update_database(mocker):
     assert response_data["in_trash"] is False
     assert response_data["developer_survey"] is not None
     assert response_data["request_id"] is not None
-    
+
+
 def test_should_archive_database(mocker):
     # Mocks
     successResponse = mocker.Mock()
@@ -187,13 +199,14 @@ def test_should_archive_database(mocker):
     conn = mocker.Mock()
     conn.getresponse.return_value = successResponse
     mocker.patch("http.client.HTTPSConnection", return_value=conn)
-    
+
     # Arrange
+    token: str = "secret"
     database_id: str = "1c62e8a0-bb82-46d9-8000-71c3679e840e"
-    
+
     # Act
-    response_data: dict = notion_database_manager.archive_database(database_id)
-    
+    response_data: dict = notion_database_manager.archive_database(token, database_id)
+
     # Assert
     assert response_data is not None
     assert response_data["object"] == "database"
@@ -216,6 +229,7 @@ def test_should_archive_database(mocker):
     assert response_data["developer_survey"] is not None
     assert response_data["request_id"] is not None
 
+
 def test_should_unarchive_database(mocker):
     # Mocks
     successResponse = mocker.Mock()
@@ -227,13 +241,14 @@ def test_should_unarchive_database(mocker):
     conn = mocker.Mock()
     conn.getresponse.return_value = successResponse
     mocker.patch("http.client.HTTPSConnection", return_value=conn)
-    
+
     # Arrange
+    token: str = "secret"
     database_id: str = "c7c1007a-d112-4b8c-a621-a769adaf7dda"
-    
+
     # Act
-    response_data: dict = notion_database_manager.unarchive_database(database_id)
-    
+    response_data: dict = notion_database_manager.unarchive_database(token, database_id)
+
     # Assert
     assert response_data is not None
     assert response_data["object"] == "database"

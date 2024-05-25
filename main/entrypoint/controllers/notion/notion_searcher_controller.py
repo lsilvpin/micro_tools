@@ -1,24 +1,14 @@
 import traceback
 from dependency_injector.wiring import inject, Provide
 from fastapi.responses import JSONResponse
+from main.entrypoint.middleware.core.auth_middleware import get_token
 from main.library.di_container import Container
-from main.library.repositories.notion.core.notion_database_manager import (
-    NotionDatabaseManager,
-)
-from main.library.repositories.notion.core.notion_page_manager import NotionPageManager
 from main.library.repositories.notion.core.notion_searcher import NotionSearcher
-from main.library.repositories.notion.models.notion_custom_icon import NotionIcon
-from main.library.repositories.notion.models.notion_database import NotionDatabase
-from main.library.repositories.notion.models.notion_page import NotionPage
-from main.library.repositories.notion.models.notion_page_block import NotionPageBlock
-from main.library.repositories.notion.models.notion_property import NotionProperty
 from main.library.repositories.notion.models.notion_search_result import (
     NotionSearchResult,
 )
 from main.library.tools.core.log_tool import LogTool
-from fastapi import APIRouter, Body, Depends, Path
-from main.library.tools.core.settings_tool import SettingsTool
-from main.library.utils.core.settings_helper import get
+from fastapi import APIRouter, Body, Depends
 from main.library.utils.models.validation_exception import ValidationException
 
 router = APIRouter()
@@ -54,6 +44,12 @@ router = APIRouter()
                 }
             },
         },
+        403: {
+            "description": "Forbidden",
+            "content": {
+                "application/json": {"example": {"detail": "Not authenticated"}}
+            },
+        },
         500: {
             "description": "Internal Server Error",
             "content": {
@@ -69,6 +65,7 @@ router = APIRouter()
 )
 @inject
 async def search(
+    token: str = Depends(get_token),
     query: dict = Body(
         ...,
         example={
@@ -88,7 +85,7 @@ async def search(
     try:
         log_tool.info("Buscando página no Notion.")
         assert query is not None, "Query não pode ser nula."
-        result: NotionSearchResult = notion_searcher.search(query)
+        result: NotionSearchResult = notion_searcher.search(token, query)
         log_tool.info(f"Páginas retornadas: \n{result}")
         return result
     except ValidationException as ve:

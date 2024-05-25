@@ -1,6 +1,7 @@
 import traceback
 from dependency_injector.wiring import inject, Provide
 from fastapi.responses import JSONResponse
+from main.entrypoint.middleware.core.auth_middleware import get_token
 from main.library.di_container import Container
 from main.library.repositories.notion.core.notion_page_manager import NotionPageManager
 from main.library.repositories.notion.models.notion_custom_icon import NotionIcon
@@ -39,6 +40,16 @@ router = APIRouter()
                 }
             },
         },
+        403: {
+            "description": "Forbidden",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Not authenticated",
+                    }
+                }
+            },
+        },
         500: {
             "description": "Internal Server Error",
             "content": {
@@ -54,6 +65,7 @@ router = APIRouter()
 )
 @inject
 async def create_page(
+    token: str = Depends(get_token),
     database_id: str = Path(
         ...,
         title="Database ID",
@@ -178,7 +190,7 @@ async def create_page(
             )
         notion_page: NotionPage = NotionPage(notion_icon, page_properties, page_blocks)
         log_tool.info(f"Payload: {notion_page}")
-        response_obj: dict = notion_page_manager.create_page(notion_page, database_id)
+        response_obj: dict = notion_page_manager.create_page(token, notion_page, database_id)
         log_tool.info(f"Objeto retornado pela API do Notion: {response_obj}")
         created_id: str = response_obj["id"]
         log_tool.info(f"Página criada com sucesso. ID: {created_id}")
@@ -435,6 +447,16 @@ async def create_page(
                 }
             },
         },
+        403: {
+            "description": "Forbidden",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Not authenticated",
+                    }
+                }
+            },
+        },
         500: {
             "description": "Internal Server Error",
             "content": {
@@ -450,6 +472,7 @@ async def create_page(
 )
 @inject
 async def read_page(
+    token: str = Depends(get_token),
     page_id: str = Path(
         ...,
         title="Page ID",
@@ -467,7 +490,7 @@ async def read_page(
     try:
         log_tool.info("Lendo página no Notion.")
         assert page_id is not None, "ID da página não pode ser nulo."
-        response_obj: NotionPage = notion_page_manager.read_page_by_id(page_id)
+        response_obj: NotionPage = notion_page_manager.read_page_by_id(token, page_id)
         log_tool.info(f"Página retornada: \n{response_obj}")
         return response_obj
     except ValidationException as ve:
@@ -530,6 +553,7 @@ async def read_page(
 )
 @inject
 async def query_pages(
+    token: str = Depends(get_token),
     database_id: str = Path(
         ...,
         title="Database ID",
@@ -565,7 +589,7 @@ async def query_pages(
         assert "filter" in body, "Filtro não pode ser nulo."
         filter: dict | None = body["filter"]
         response_obj: list[NotionPage] = notion_page_manager.query_pages_by_database_id(
-            database_id, filter
+            token, database_id, filter
         )
         log_tool.info(f"Páginas retornadas: \n{response_obj}")
         return response_obj
@@ -620,6 +644,16 @@ async def query_pages(
                 }
             },
         },
+        403: {
+            "description": "Forbidden",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Not authenticated",
+                    }
+                }
+            },
+        },
         500: {
             "description": "Internal Server Error",
             "content": {
@@ -635,6 +669,7 @@ async def query_pages(
 )
 @inject
 async def update_page(
+    token: str = Depends(get_token),
     page_id: str = Path(
         ...,
         title="Page ID",
@@ -721,7 +756,7 @@ async def update_page(
             )
         notion_page: NotionPage = NotionPage(notion_icon, page_properties, [])
         log_tool.info(f"Payload: {notion_page}")
-        response: dict = notion_page_manager.update_page_by_id(page_id, notion_page)
+        response: dict = notion_page_manager.update_page_by_id(token, page_id, notion_page)
         log_tool.info(f"Resposta da API do Notion: {response}")
         return {"Message": f"Página {page_id} atualizada com sucesso."}
     except ValidationException as ve:
@@ -775,6 +810,16 @@ async def update_page(
                 }
             },
         },
+        403: {
+            "description": "Forbidden",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Not authenticated",
+                    }
+                }
+            },
+        },
         500: {
             "description": "Internal Server Error",
             "content": {
@@ -790,6 +835,7 @@ async def update_page(
 )
 @inject
 async def archive_page(
+    token: str = Depends(get_token),
     page_id: str = Path(
         ...,
         title="Page ID",
@@ -807,7 +853,7 @@ async def archive_page(
     try:
         log_tool.info("Atualizando página no Notion.")
         assert page_id is not None, "ID da página não pode ser nulo."
-        response: dict = notion_page_manager.archive_page_by_id(page_id)
+        response: dict = notion_page_manager.archive_page_by_id(token, page_id)
         log_tool.info(f"Resposta da API do Notion: {response}")
         return {"Message": f"Página {page_id} arquivada com sucesso."}
     except ValidationException as ve:
@@ -861,6 +907,16 @@ async def archive_page(
                 }
             },
         },
+        403: {
+            "description": "Forbidden",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Not authenticated",
+                    }
+                }
+            },
+        },
         500: {
             "description": "Internal Server Error",
             "content": {
@@ -876,6 +932,7 @@ async def archive_page(
 )
 @inject
 async def unarchive_page(
+    token: str = Depends(get_token),
     page_id: str = Path(
         ...,
         title="Page ID",
@@ -893,7 +950,7 @@ async def unarchive_page(
     try:
         log_tool.info("Desarquivando página no Notion.")
         assert page_id is not None, "ID da página não pode ser nulo."
-        response: dict = notion_page_manager.unarchive_page_by_id(page_id)
+        response: dict = notion_page_manager.unarchive_page_by_id(token, page_id)
         log_tool.info(f"Resposta da API do Notion: {response}")
         return {"Message": f"Página {page_id} recuperada com sucesso."}
     except ValidationException as ve:

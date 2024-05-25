@@ -17,7 +17,10 @@ class NotionDatabaseManager:
         self.settings_tool = settings_tool
         self.log_tool = log_tool
 
-    def create_database(self, page_id: str, database: NotionDatabase) -> dict:
+    def create_database(
+        self, token: str, page_id: str, database: NotionDatabase
+    ) -> dict:
+        assert token is not None, "Token cannot be None"
         assert page_id is not None, "Page ID cannot be None"
         assert database is not None, "Database cannot be None"
         database.parent_id = page_id
@@ -29,11 +32,9 @@ class NotionDatabaseManager:
         assert notion_port is not None, "NOTION_PORT cannot be None"
         notion_version: str = self.settings_tool.get("NOTION_VERSION")
         assert notion_version is not None, "NOTION_VERSION cannot be None"
-        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
-        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
         notion_database_uri: str = f"/v1/databases"
         headers: dict = {
-            "Authorization": f"Bearer {notion_api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }
@@ -55,8 +56,9 @@ class NotionDatabaseManager:
         response_str: str = response_data.decode("utf-8")
         response_dict: dict = json.loads(response_str)
         return response_dict
-    
-    def read_database_by_id(self, database_id: str) -> NotionDatabase:
+
+    def read_database_by_id(self, token: str, database_id: str) -> NotionDatabase:
+        assert token is not None, "Token cannot be None"
         assert database_id is not None, "Database ID cannot be None"
         notion_protocol: str = self.settings_tool.get("NOTION_PROTOCOL")
         assert notion_protocol is not None, "NOTION_PROTOCOL cannot be None"
@@ -66,11 +68,9 @@ class NotionDatabaseManager:
         assert notion_port is not None, "NOTION_PORT cannot be None"
         notion_version: str = self.settings_tool.get("NOTION_VERSION")
         assert notion_version is not None, "NOTION_VERSION cannot be None"
-        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
-        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
         notion_database_uri: str = f"/v1/databases/{database_id}"
         headers: dict = {
-            "Authorization": f"Bearer {notion_api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }
@@ -91,8 +91,11 @@ class NotionDatabaseManager:
         response_dict: dict = json.loads(response_str)
         database: NotionDatabase = NotionDatabase.from_read_response(response_dict)
         return database
-    
-    def update_database(self, database_id: str, database: NotionDatabase) -> dict:
+
+    def update_database(
+        self, token: str, database_id: str, database: NotionDatabase
+    ) -> dict:
+        assert token is not None, "Token cannot be None"
         assert database is not None, "Database cannot be None"
         notion_protocol: str = self.settings_tool.get("NOTION_PROTOCOL")
         assert notion_protocol is not None, "NOTION_PROTOCOL cannot be None"
@@ -102,11 +105,9 @@ class NotionDatabaseManager:
         assert notion_port is not None, "NOTION_PORT cannot be None"
         notion_version: str = self.settings_tool.get("NOTION_VERSION")
         assert notion_version is not None, "NOTION_VERSION cannot be None"
-        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
-        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
         notion_database_uri: str = f"/v1/databases/{database_id}"
         headers: dict = {
-            "Authorization": f"Bearer {notion_api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }
@@ -128,8 +129,9 @@ class NotionDatabaseManager:
         response_str: str = response_data.decode("utf-8")
         response_dict: dict = json.loads(response_str)
         return response_dict
-    
-    def archive_database(self, database_id: str) -> dict:
+
+    def archive_database(self, token: str, database_id: str) -> dict:
+        assert token is not None, "Token cannot be None"
         assert database_id is not None, "Database ID cannot be None"
         notion_protocol: str = self.settings_tool.get("NOTION_PROTOCOL")
         assert notion_protocol is not None, "NOTION_PROTOCOL cannot be None"
@@ -139,11 +141,9 @@ class NotionDatabaseManager:
         assert notion_port is not None, "NOTION_PORT cannot be None"
         notion_version: str = self.settings_tool.get("NOTION_VERSION")
         assert notion_version is not None, "NOTION_VERSION cannot be None"
-        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
-        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
         notion_database_uri: str = f"/v1/databases/{database_id}"
         headers: dict = {
-            "Authorization": f"Bearer {notion_api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }
@@ -165,8 +165,9 @@ class NotionDatabaseManager:
         response_str: str = response_data.decode("utf-8")
         response_dict: dict = json.loads(response_str)
         return response_dict
-    
-    def unarchive_database(self, database_id: str) -> dict:
+
+    def unarchive_database(self, token: str, database_id: str) -> dict:
+        assert token is not None, "Token cannot be None"
         assert database_id is not None, "Database ID cannot be None"
         notion_protocol: str = self.settings_tool.get("NOTION_PROTOCOL")
         assert notion_protocol is not None, "NOTION_PROTOCOL cannot be None"
@@ -176,11 +177,9 @@ class NotionDatabaseManager:
         assert notion_port is not None, "NOTION_PORT cannot be None"
         notion_version: str = self.settings_tool.get("NOTION_VERSION")
         assert notion_version is not None, "NOTION_VERSION cannot be None"
-        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
-        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
         notion_database_uri: str = f"/v1/databases/{database_id}"
         headers: dict = {
-            "Authorization": f"Bearer {notion_api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }

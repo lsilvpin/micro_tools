@@ -36,6 +36,7 @@ def test_should_create_agent_page(mocker):
     mocker.patch("http.client.HTTPSConnection", return_value=conn)
 
     # Arrange
+    token: str = "secret_123"
     database_id: str = "6301f640e21c4526a72ed96e7d4ba71d"
     icon: NotionIcon = NotionIcon("emoji", "👩🏻‍💻")
     nome: NotionProperty = NotionProperty(
@@ -54,7 +55,7 @@ def test_should_create_agent_page(mocker):
     page: NotionPage = NotionPage(icon, [nome, papel, objetivo], [image])
 
     # Act
-    response_data: dict = notion_page_manager.create_page(page, database_id)
+    response_data: dict = notion_page_manager.create_page(token, page, database_id)
 
     # Assert
     assert response_data is not None
@@ -89,11 +90,12 @@ def test_should_read_page_properties_by_page_id(mocker):
     mocker.patch("http.client.HTTPSConnection", return_value=conn)
 
     # Arrange
+    token: str = "secret_123"
     page_id: str = "c5353a8c-a89c-4dd0-96c5-e3e2d19a0387"
 
     # Act
     response_page: NotionPage = notion_page_manager.read_page_properties_by_page_id(
-        page_id
+        token, page_id
     )
 
     # Assert
@@ -126,13 +128,16 @@ def test_should_read_page_by_id(mocker):
     }
 
     # Arrange
+    token: str = "secret_123"
     notion_page_manager_with_mocks = NotionPageManager(
         settings_tool, log_tool, notion_block_manager_mock
     )
     page_id: str = "c5353a8c-a89c-4dd0-96c5-e3e2d19a0387"
 
     # Act
-    response_page: NotionPage = notion_page_manager_with_mocks.read_page_by_id(page_id)
+    response_page: NotionPage = notion_page_manager_with_mocks.read_page_by_id(
+        token, page_id
+    )
 
     # Assert
     assert response_page is not None, "Page not found"
@@ -155,12 +160,13 @@ def test_should_query_pages_by_database_id(mocker):
     mocker.patch("http.client.HTTPSConnection", return_value=conn)
 
     # Arrange
+    token: str = "secret"
     database_id: str = "c7c1007a-d112-4b8c-a621-a769adaf7dda"
     filter: dict = {"property": "Name", "title": {"contains": ""}}
 
     # Act
     response_data: list[NotionPage] = notion_page_manager.query_pages_by_database_id(
-        database_id, filter
+        token, database_id, filter
     )
 
     # Assert
@@ -201,6 +207,7 @@ def test_should_update_page_by_id(mocker):
     mocker.patch("http.client.HTTPSConnection", return_value=conn)
 
     # Arrange
+    token: str = "secret"
     page_id: str = "b278bdba-2484-4976-a2fc-36414c73d73d"
     icon: NotionIcon = NotionIcon("emoji", "👩🏻‍💻")
     properties: list[NotionProperty] = [
@@ -213,7 +220,7 @@ def test_should_update_page_by_id(mocker):
     page: NotionPage = NotionPage(icon, properties, [])
 
     # Act
-    response_data: dict = notion_page_manager.update_page_by_id(page_id, page)
+    response_data: dict = notion_page_manager.update_page_by_id(token, page_id, page)
 
     # Assert
     assert response_data is not None
@@ -255,10 +262,11 @@ def test_should_archive_page_by_id(mocker):
     mocker.patch("http.client.HTTPSConnection", return_value=conn)
 
     # Arrange
+    token: str = "secret"
     page_id: str = "c5353a8c-a89c-4dd0-96c5-e3e2d19a0387"
 
     # Act
-    response_data: dict = notion_page_manager.archive_page_by_id(page_id)
+    response_data: dict = notion_page_manager.archive_page_by_id(token, page_id)
 
     # Assert
     assert response_data is not None
@@ -281,10 +289,11 @@ def test_should_unarchive_page_by_id(mocker):
     mocker.patch("http.client.HTTPSConnection", return_value=conn)
 
     # Arrange
+    token: str = "secret"
     page_id: str = "c5353a8c-a89c-4dd0-96c5-e3e2d19a0387"
 
     # Act
-    response_data: dict = notion_page_manager.archive_page_by_id(page_id)
+    response_data: dict = notion_page_manager.archive_page_by_id(token, page_id)
 
     # Assert
     assert response_data is not None

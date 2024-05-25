@@ -24,10 +24,11 @@ def test_should_read_page_blocks_by_page_id(mocker):
     mocker.patch("http.client.HTTPSConnection", return_value=conn)
 
     # Arrange
+    token: str = "secret"
     page_id: str = "c5353a8c-a89c-4dd0-96c5-e3e2d19a0387"
 
     # Act
-    response_blocks: dict = notion_block_manager.read_page_blocks_by_page_id(page_id)
+    response_blocks: dict = notion_block_manager.read_page_blocks_by_page_id(token, page_id)
 
     # Assert
     assert response_blocks is not None, "Page blocks not found"

@@ -31,8 +31,9 @@ class NotionPageManager:
         self.log_tool: LogTool = log_tool
         self.notion_block_manager: NotionBlockManager = notion_block_manager
 
-    def create_page(self, page: NotionPage, database_id: str):
+    def create_page(self, token: str, page: NotionPage, database_id: str):
         assert page is not None, "Page cannot be None"
+        assert token is not None, "Token cannot be None"
         assert database_id is not None, "Database ID cannot be None"
         assert page.properties is not None, "Page properties cannot be None"
         assert len(page.properties) > 0, "Page properties cannot be empty"
@@ -45,11 +46,9 @@ class NotionPageManager:
         assert notion_port is not None, "NOTION_PORT cannot be None"
         notion_version: str = self.settings_tool.get("NOTION_VERSION")
         assert notion_version is not None, "NOTION_VERSION cannot be None"
-        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
-        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
         notion_database_uri: str = f"/v1/pages"
         headers: dict = {
-            "Authorization": f"Bearer {notion_api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }
@@ -80,8 +79,9 @@ class NotionPageManager:
         response_dict: dict = json.loads(response_str)
         return response_dict
 
-    def read_page_properties_by_page_id(self, page_id: str) -> NotionPage:
+    def read_page_properties_by_page_id(self, token: str, page_id: str) -> NotionPage:
         assert page_id is not None, "Page ID cannot be None"
+        assert token is not None, "Token cannot be None"
         notion_protocol: str = self.settings_tool.get("NOTION_PROTOCOL")
         assert notion_protocol is not None, "NOTION_PROTOCOL cannot be None"
         notion_host: str = self.settings_tool.get("NOTION_HOST")
@@ -90,11 +90,9 @@ class NotionPageManager:
         assert notion_port is not None, "NOTION_PORT cannot be None"
         notion_version: str = self.settings_tool.get("NOTION_VERSION")
         assert notion_version is not None, "NOTION_VERSION cannot be None"
-        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
-        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
         notion_database_uri: str = f"/v1/pages/{page_id}"
         headers: dict = {
-            "Authorization": f"Bearer {notion_api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }
@@ -118,12 +116,14 @@ class NotionPageManager:
 
     def query_pages_by_database_id(
         self,
+        token: str,
         database_id: str,
         filter: dict | None = None,
         page_size: int = 100,
         start_cursor: str | None = None,
     ) -> list[NotionPage]:
         assert database_id is not None, "Database ID cannot be None"
+        assert token is not None, "Token cannot be None"
         notion_protocol: str = self.settings_tool.get("NOTION_PROTOCOL")
         assert notion_protocol is not None, "NOTION_PROTOCOL cannot be None"
         notion_host: str = self.settings_tool.get("NOTION_HOST")
@@ -132,11 +132,9 @@ class NotionPageManager:
         assert notion_port is not None, "NOTION_PORT cannot be None"
         notion_version: str = self.settings_tool.get("NOTION_VERSION")
         assert notion_version is not None, "NOTION_VERSION cannot be None"
-        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
-        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
         notion_database_uri: str = f"/v1/databases/{database_id}/query"
         headers: dict = {
-            "Authorization": f"Bearer {notion_api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }
@@ -167,16 +165,17 @@ class NotionPageManager:
             pages.append(page)
         return pages
 
-    def read_page_by_id(self, page_id: str) -> NotionPage:
+    def read_page_by_id(self, token: str, page_id: str) -> NotionPage:
         assert page_id is not None, "Page ID cannot be None"
-        notionPage: NotionPage = self.read_page_properties_by_page_id(page_id)
+        assert token is not None, "Token cannot be None"
+        notionPage: NotionPage = self.read_page_properties_by_page_id(token, page_id)
         blocks: list[NotionPageBlock] = []
         has_more: bool = True
         next_cursor: str = None
         try:
             while has_more:
                 response: dict = self.notion_block_manager.read_page_blocks_by_page_id(
-                    page_id, page_size=100, start_cursor=next_cursor
+                    token, page_id, page_size=100, start_cursor=next_cursor
                 )
                 blocks.extend(response["blocks"])
                 has_more = response["has_more"]
@@ -186,7 +185,8 @@ class NotionPageManager:
         notionPage.blocks = blocks
         return notionPage
 
-    def update_page_by_id(self, page_id: str, page: NotionPage) -> dict:
+    def update_page_by_id(self, token: str, page_id: str, page: NotionPage) -> dict:
+        assert token is not None, "Token cannot be None"
         assert page_id is not None, "Page ID cannot be None"
         assert page is not None, "Page cannot be None"
         assert page.properties is not None, "Page properties cannot be None"
@@ -200,11 +200,9 @@ class NotionPageManager:
         assert notion_port is not None, "NOTION_PORT cannot be None"
         notion_version: str = self.settings_tool.get("NOTION_VERSION")
         assert notion_version is not None, "NOTION_VERSION cannot be None"
-        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
-        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
         notion_database_uri: str = f"/v1/pages/{page_id}"
         headers: dict = {
-            "Authorization": f"Bearer {notion_api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }
@@ -234,7 +232,8 @@ class NotionPageManager:
         response_dict: dict = json.loads(response_str)
         return response_dict
 
-    def archive_page_by_id(self, page_id: str) -> dict:
+    def archive_page_by_id(self, token: str, page_id: str) -> dict:
+        assert token is not None, "Token cannot be None"
         assert page_id is not None, "Page ID cannot be None"
         notion_protocol: str = self.settings_tool.get("NOTION_PROTOCOL")
         assert notion_protocol is not None, "NOTION_PROTOCOL cannot be None"
@@ -244,11 +243,9 @@ class NotionPageManager:
         assert notion_port is not None, "NOTION_PORT cannot be None"
         notion_version: str = self.settings_tool.get("NOTION_VERSION")
         assert notion_version is not None, "NOTION_VERSION cannot be None"
-        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
-        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
         notion_database_uri: str = f"/v1/pages/{page_id}"
         headers: dict = {
-            "Authorization": f"Bearer {notion_api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }
@@ -271,7 +268,8 @@ class NotionPageManager:
         response_dict: dict = json.loads(response_str)
         return response_dict
 
-    def unarchive_page_by_id(self, page_id: str) -> dict:
+    def unarchive_page_by_id(self, token: str, page_id: str) -> dict:
+        assert token is not None, "Token cannot be None"
         assert page_id is not None, "Page ID cannot be None"
         notion_protocol: str = self.settings_tool.get("NOTION_PROTOCOL")
         assert notion_protocol is not None, "NOTION_PROTOCOL cannot be None"
@@ -281,11 +279,9 @@ class NotionPageManager:
         assert notion_port is not None, "NOTION_PORT cannot be None"
         notion_version: str = self.settings_tool.get("NOTION_VERSION")
         assert notion_version is not None, "NOTION_VERSION cannot be None"
-        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
-        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
         notion_database_uri: str = f"/v1/pages/{page_id}"
         headers: dict = {
-            "Authorization": f"Bearer {notion_api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }

@@ -21,8 +21,13 @@ class NotionSearcher:
         self.log_tool = log_tool
 
     def search(
-        self, search_obj: dict, page_size: int = 100, start_cursor: str | None = None
+        self,
+        token: str,
+        search_obj: dict,
+        page_size: int = 100,
+        start_cursor: str | None = None,
     ) -> NotionSearchResult:
+        assert token is not None, "Token cannot be None"
         assert search_obj is not None, "Search object cannot be None"
         notion_protocol: str = self.settings_tool.get("NOTION_PROTOCOL")
         assert notion_protocol is not None, "NOTION_PROTOCOL cannot be None"
@@ -32,11 +37,9 @@ class NotionSearcher:
         assert notion_port is not None, "NOTION_PORT cannot be None"
         notion_version: str = self.settings_tool.get("NOTION_VERSION")
         assert notion_version is not None, "NOTION_VERSION cannot be None"
-        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
-        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
         notion_database_uri: str = f"/v1/search"
         headers: dict = {
-            "Authorization": f"Bearer {notion_api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }

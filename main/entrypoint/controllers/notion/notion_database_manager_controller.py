@@ -1,6 +1,7 @@
 import traceback
 from dependency_injector.wiring import inject, Provide
 from fastapi.responses import JSONResponse
+from main.entrypoint.middleware.core.auth_middleware import get_token
 from main.library.di_container import Container
 from main.library.repositories.notion.core.notion_database_manager import (
     NotionDatabaseManager,
@@ -43,6 +44,16 @@ router = APIRouter()
                 }
             },
         },
+        403: {
+            "description": "Forbidden",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Not authenticated",
+                    }
+                }
+            },
+        },
         500: {
             "description": "Internal Server Error",
             "content": {
@@ -58,6 +69,7 @@ router = APIRouter()
 )
 @inject
 async def create_database(
+    token: str = Depends(get_token),
     page_id: str = Path(
         ...,
         title="Page ID",
@@ -193,7 +205,7 @@ async def create_database(
     try:
         log_tool.info("Criando banco de dados no Notion.")
         database: NotionDatabase = NotionDatabase.from_dict(body)
-        response: dict = notion_database_manager.create_database(page_id, database)
+        response: dict = notion_database_manager.create_database(token, page_id, database)
         log_tool.info(f"Resposta da API do Notion: {response}")
         database_id: str = response["id"]
         return {"database_id": database_id}
@@ -420,6 +432,16 @@ async def create_database(
                 }
             },
         },
+        403: {
+            "description": "Forbidden",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Not authenticated",
+                    }
+                }
+            },
+        },
         500: {
             "description": "Internal Server Error",
             "content": {
@@ -435,6 +457,7 @@ async def create_database(
 )
 @inject
 async def read_database(
+    token: str = Depends(get_token),
     database_id: str = Path(
         ...,
         title="Database ID",
@@ -452,7 +475,7 @@ async def read_database(
     try:
         log_tool.info("Lendo banco de dados no Notion.")
         assert database_id is not None, "ID do banco de dados não pode ser nulo."
-        db: NotionDatabase = notion_database_manager.read_database_by_id(database_id)
+        db: NotionDatabase = notion_database_manager.read_database_by_id(token, database_id)
         log_tool.info(f"Banco de dados retornado: \n{db}")
         return db
     except ValidationException as ve:
@@ -506,6 +529,16 @@ async def read_database(
                 }
             },
         },
+        403: {
+            "description": "Forbidden",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Not authenticated",
+                    }
+                }
+            },
+        },
         500: {
             "description": "Internal Server Error",
             "content": {
@@ -521,6 +554,7 @@ async def read_database(
 )
 @inject
 async def update_database(
+    token: str = Depends(get_token),
     database_id: str = Path(
         ...,
         title="Database ID",
@@ -656,7 +690,7 @@ async def update_database(
     try:
         log_tool.info("Atualizando banco de dados no Notion.")
         database: NotionDatabase = NotionDatabase.from_dict(body)
-        response: dict = notion_database_manager.update_database(database_id, database)
+        response: dict = notion_database_manager.update_database(token, database_id, database)
         log_tool.info(f"Resposta da API do Notion: {response}")
         msg: str = f"Banco de dados {database_id} atualizado com sucesso."
         return {"Message": msg}
@@ -711,6 +745,16 @@ async def update_database(
                 }
             },
         },
+        403: {
+            "description": "Forbidden",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Not authenticated",
+                    }
+                }
+            },
+        },
         500: {
             "description": "Internal Server Error",
             "content": {
@@ -726,6 +770,7 @@ async def update_database(
 )
 @inject
 async def archive_database(
+    token: str = Depends(get_token),
     database_id: str = Path(
         ...,
         title="Database ID",
@@ -743,7 +788,7 @@ async def archive_database(
     try:
         log_tool.info("Arquivando banco de dados no Notion.")
         assert database_id is not None, "ID do banco de dados não pode ser nulo."
-        response: dict = notion_database_manager.archive_database(database_id)
+        response: dict = notion_database_manager.archive_database(token, database_id)
         log_tool.info(f"Resposta da API do Notion: {response}")
         msg: str = f"Banco de dados {database_id} arquivado com sucesso."
         return {"Message": msg}
@@ -798,6 +843,16 @@ async def archive_database(
                 }
             },
         },
+        403: {
+            "description": "Forbidden",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "detail": "Not authenticated",
+                    }
+                }
+            },
+        },
         500: {
             "description": "Internal Server Error",
             "content": {
@@ -813,6 +868,7 @@ async def archive_database(
 )
 @inject
 async def unarchive_database(
+    token: str = Depends(get_token),
     database_id: str = Path(
         ...,
         title="Database ID",
@@ -830,7 +886,7 @@ async def unarchive_database(
     try:
         log_tool.info("Desarquivando banco de dados no Notion.")
         assert database_id is not None, "ID do banco de dados não pode ser nulo."
-        response: dict = notion_database_manager.unarchive_database(database_id)
+        response: dict = notion_database_manager.unarchive_database(token, database_id)
         log_tool.info(f"Resposta da API do Notion: {response}")
         msg: str = f"Banco de dados {database_id} recuperado com sucesso."
         return {"Message": msg}

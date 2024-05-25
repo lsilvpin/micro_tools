@@ -21,8 +21,9 @@ class NotionBlockManager:
         self.log_tool: LogTool = log_tool
 
     def read_page_blocks_by_page_id(
-        self, page_id: str, page_size: int = 100, start_cursor: str = None
+        self, token: str, page_id: str, page_size: int = 100, start_cursor: str = None
     ) -> dict:
+        assert token is not None, "Token cannot be None"
         assert page_id is not None, "Page ID cannot be None"
         notion_protocol: str = self.settings_tool.get("NOTION_PROTOCOL")
         assert notion_protocol is not None, "NOTION_PROTOCOL cannot be None"
@@ -32,15 +33,13 @@ class NotionBlockManager:
         assert notion_port is not None, "NOTION_PORT cannot be None"
         notion_version: str = self.settings_tool.get("NOTION_VERSION")
         assert notion_version is not None, "NOTION_VERSION cannot be None"
-        notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
-        assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
         notion_database_uri: str = (
             f"/v1/blocks/{page_id}/children?page_size={page_size}"
         )
         if start_cursor is not None:
             notion_database_uri += f"&start_cursor={start_cursor}"
         headers: dict = {
-            "Authorization": f"Bearer {notion_api_key}",
+            "Authorization": f"Bearer {token}",
             "Content-Type": "application/json",
             "Notion-Version": notion_version,
         }

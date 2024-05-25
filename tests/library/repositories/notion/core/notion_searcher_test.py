@@ -1,6 +1,7 @@
 import sys, os
 
 from main.library.repositories.notion.core.notion_searcher import NotionSearcher
+from main.library.repositories.notion.models.notion_search_result import NotionSearchResult
 from main.library.tools.core.log_tool import LogTool
 from main.library.tools.core.settings_tool import SettingsTool
 
@@ -27,12 +28,20 @@ def test_should_search_elements(mocker):
     mocker.patch("http.client.HTTPSConnection", return_value=conn)
 
     # Arrange
+    token: str = "token"
     body: dict = {"filter": {"property": "title", "text": {"equals": "Banco de dados"}}}
 
     # Act
-    result: dict = notion_searcher.search(body)
+    result: NotionSearchResult = notion_searcher.search(token, body)
 
     # Assert
-    assert result["object"] == "list", "object key not found"
-    assert "results" in result, "results key not found"
-    assert len(result["results"]) > 0, "results is empty"
+    assert result is not None, "Result should not be None"
+    assert result.pages is not None, "Result pages should not be None"
+    assert len(result.pages) > 0, "Result pages should not be empty"
+    assert result.databases is not None, "Result databases should not be None"
+    assert len(result.databases) > 0, "Result databases should not be empty"
+    assert result.count() >= 2, "Result count should be greater than 1"
+    assert result.has_more is True, "Result has_more should be True"
+    assert result.next_cursor is not None, "Result next_cursor should not be None"
+    assert result.next_cursor != "", "Result next_cursor should not be None"
+    
