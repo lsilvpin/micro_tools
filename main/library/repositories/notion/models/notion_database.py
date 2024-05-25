@@ -63,8 +63,8 @@ class NotionDatabase:
         for prop in self.properties:
             assert prop.name is not None, "Property name cannot be None"
             assert prop.type is not None, "Property type cannot be None"
-            payload["properties"][prop.name] = self.__get_prop_to_create_db_payload(
-                prop
+            payload["properties"][prop.name] = (
+                self.__get_prop_options_to_create_db_payload(prop)
             )
         return payload
 
@@ -86,8 +86,8 @@ class NotionDatabase:
         for prop in self.properties:
             assert prop.name is not None, "Property name cannot be None"
             assert prop.type is not None, "Property type cannot be None"
-            payload["properties"][prop.name] = self.__get_prop_to_create_db_payload(
-                prop
+            payload["properties"][prop.name] = (
+                self.__get_prop_options_to_create_db_payload(prop)
             )
         return payload
 
@@ -96,33 +96,39 @@ class NotionDatabase:
         return {"archived": self.archived}
 
     @staticmethod
-    def from_create_payload(data: dict):
-        assert data is not None, "Database Data from create payload should not be None"
-        assert (
-            "is_inline" in data
-        ), "Database Data from create payload should have an is_inline"
-        assert (
-            "parent" in data
-        ), "Database Data from create payload should have a parent"
-        assert "icon" in data, "Database Data from create payload should have an icon"
-        assert "title" in data, "Database Data from create payload should have a title"
-        assert (
-            "description" in data
-        ), "Database Data from create payload should have a description"
-        assert (
-            "properties" in data
-        ), "Database Data from create payload should have properties"
+    def from_dict(data: dict):
+        assert data is not None, "Database Data should not be None"
+        assert "is_inline" in data, "Database Data should have an is_inline"
+        assert "icon" in data, "Database Data should have an icon"
+        assert "title" in data, "Database Data should have a title"
+        assert "description" in data, "Database Data should have a description"
+        assert "properties" in data, "Database Data should have properties"
         assert (
             len(data["properties"]) > 0
-        ), "Database Data from create payload should have at least one property"
+        ), "Database Data should have at least one property"
+        database_id: str | None = None
+        if "id" in data:
+            database_id = str(data["id"])
+        parent_id: str | None = None
+        if "parent_id" in data:
+            parent_id = str(data["parent_id"])
         is_inline: bool = bool(data["is_inline"])
-        parent_id: str = NotionDatabase.get_parent_from_response(data["parent"])
-        icon: NotionIcon = NotionIcon.from_response(data["icon"])
-        title: str = str(data["title"][0]["text"]["content"])
-        description: str = str(data["description"][0]["text"]["content"])
-        properties: list[NotionProperty] = (
-            NotionDatabase.get_properties_from_create_payload(data["properties"])
-        )
+        icon: NotionIcon = NotionIcon.from_dict(data["icon"])
+        title: str = str(data["title"])
+        description: str = str(data["description"])
+        properties: list[NotionProperty] = []
+        for p in data["properties"]:
+            prop = NotionProperty.from_dict(p)
+            properties.append(prop)
+        archived: bool = True
+        if "archived" in data:
+            archived = bool(data["archived"])
+        url: str | None = None
+        if "url" in data:
+            url = str(data["url"])
+        request_id: str | None = None
+        if "request_id" in data:
+            request_id = str(data["request_id"])
         db: NotionDatabase = NotionDatabase(
             icon,
             title,
@@ -130,10 +136,10 @@ class NotionDatabase:
             description,
             is_inline,
             parent_id,
-            None,
-            None,
-            None,
-            None,
+            database_id,
+            archived,
+            url,
+            request_id,
         )
         return db
 
@@ -168,7 +174,9 @@ class NotionDatabase:
         parent_id: str = NotionDatabase.get_parent_from_response(data["parent"])
         icon: NotionIcon = NotionIcon.from_response(data["icon"])
         title: str = str(data["title"][0]["plain_text"])
-        description: str = str(data["description"][0]["plain_text"])
+        description: str | None = None
+        if "description" in data and len(data["description"]) > 0:
+            description = str(data["description"][0]["plain_text"])
         properties: list[NotionProperty] = NotionDatabase.get_properties_from_response(
             data["properties"]
         )
@@ -192,40 +200,20 @@ class NotionDatabase:
     @staticmethod
     def get_properties_from_response(properties_data: dict) -> list[NotionProperty]:
         properties: list[NotionProperty] = []
-        for prop in properties_data:
-            prop_name: str = prop["name"]
-            prop_type: str = prop["type"]
-            prop_value: Any = None
-            if prop_type == "number":
-                prop_value = prop["number"]
-            elif prop_type == "select":
-                prop_value = prop["select"]
-            elif prop_type == "multi_select":
-                prop_value = prop["multi_select"]
-            else:
-                prop_value = prop[prop_type]
-            properties.append(NotionProperty(prop_name, prop_type, prop_value))
-        return properties
-
-    @staticmethod
-    def get_properties_from_create_payload(
-        properties_data: dict,
-    ) -> list[NotionProperty]:
-        properties: list[NotionProperty] = []
         for key, value in properties_data.items():
             prop = dict(value)
             prop_name: str = key
-            prop_type: str = list(prop.keys())[0]
-            prop_value: Any = None
+            prop_type: str = prop["type"]
+            prop_options: Any = None
             if prop_type == "number":
-                prop_value = prop["number"]
+                prop_options = prop["number"]
             elif prop_type == "select":
-                prop_value = prop["select"]
+                prop_options = prop["select"]
             elif prop_type == "multi_select":
-                prop_value = prop["multi_select"]
+                prop_options = prop["multi_select"]
             else:
-                prop_value = prop[prop_type]
-            properties.append(NotionProperty(prop_name, prop_type, prop_value))
+                prop_options = prop[prop_type]
+            properties.append(NotionProperty(prop_name, prop_type, None, prop_options))
         return properties
 
     @staticmethod
@@ -235,19 +223,19 @@ class NotionDatabase:
         assert "page_id" in parent_data, "Parent Data should have a page_id"
         return str(parent_data["page_id"])
 
-    def __get_prop_to_create_db_payload(self, prop: NotionProperty) -> dict:
-        value_obj: Any = prop.value
+    def __get_prop_options_to_create_db_payload(self, prop: NotionProperty) -> dict:
+        prop_options: Any = prop.options
         if prop.type == "number":
             assert (
-                prop.value is not None
-            ), "When type is number, property value cannot be None"
-            return {"number": {"format": value_obj["format"]}}
+                prop_options is not None
+            ), "When type is number, property options cannot be None"
+            return {"number": {"format": prop_options["format"]}}
         elif prop.type == "select":
             assert (
-                prop.value is not None
-            ), "When type is select, property value cannot be None"
-            return {"select": {"options": value_obj["options"]}}
+                prop_options is not None
+            ), "When type is select, property options cannot be None"
+            return {"select": {"options": prop_options["options"]}}
         elif prop.type == "multi_select":
-            return {"multi_select": {"options": value_obj["options"]}}
+            return {"multi_select": {"options": prop_options["options"]}}
         else:
             return {f"{prop.type}": {}}

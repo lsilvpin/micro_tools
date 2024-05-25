@@ -18,7 +18,7 @@ router = APIRouter()
 
 @router.post(
     "/pages/{database_id}/create",
-    tags=["Notion Management"],
+    tags=["Notion Page Management"],
     responses={
         200: {
             "description": "Success",
@@ -211,7 +211,7 @@ async def create_page(
 
 @router.get(
     "/pages/{page_id}/read",
-    tags=["Notion Management"],
+    tags=["Notion Page Management"],
     responses={
         200: {
             "description": "Success",
@@ -498,7 +498,7 @@ async def read_page(
 
 @router.post(
     "/pages/{database_id}/query",
-    tags=["Notion Management"],
+    tags=["Notion Page Management"],
     responses={
         200: {
             "description": "Success",
@@ -597,7 +597,7 @@ async def query_pages(
 
 @router.put(
     "/pages/{page_id}/update",
-    tags=["Notion Management"],
+    tags=["Notion Page Management"],
     responses={
         200: {
             "description": "Success",
@@ -752,7 +752,7 @@ async def update_page(
 
 @router.put(
     "/pages/{page_id}/archive",
-    tags=["Notion Management"],
+    tags=["Notion Page Management"],
     responses={
         200: {
             "description": "Success",
@@ -838,7 +838,7 @@ async def archive_page(
 
 @router.put(
     "/pages/{page_id}/unarchive",
-    tags=["Notion Management"],
+    tags=["Notion Page Management"],
     responses={
         200: {
             "description": "Success",

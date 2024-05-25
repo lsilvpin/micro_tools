@@ -36,18 +36,24 @@ class NotionIcon:
         return payload
 
     @staticmethod
-    def from_response(data: dict):
-        assert data is not None, "Icon data should not be None"
-        assert "type" in data, "Icon data should have a type"
-        icon_type: str = data["type"]
-        icon_value: Any | None = None
-        if icon_type == NOTION_ICON_TYPES["emoji"]:
-            icon_value: str = data["emoji"]
-        elif icon_type == NOTION_ICON_TYPES["external"]:
-            icon_value: str = data["external"]["url"]
-        elif icon_type == NOTION_ICON_TYPES["file"]:
-            icon_value: str = data["file"]["url"]
+    def from_response(data: dict) -> "NotionIcon":
+        if data is not None:
+            assert "type" in data, "Icon data should have a type"
+            icon_type: str = data["type"]
+            icon_value: Any | None = None
+            if icon_type == NOTION_ICON_TYPES["emoji"]:
+                icon_value: str = data["emoji"]
+            elif icon_type == NOTION_ICON_TYPES["external"]:
+                icon_value: str = data["external"]["url"]
+            elif icon_type == NOTION_ICON_TYPES["file"]:
+                icon_value: str = data["file"]["url"]
+            else:
+                raise ValueError(f"Invalid icon type: {icon_type}")
+            icon: NotionIcon = NotionIcon(icon_type, icon_value)
+            return icon
         else:
-            raise ValueError(f"Invalid icon type: {icon_type}")
-        icon: NotionIcon = NotionIcon(icon_type, icon_value)
-        return icon
+            return None
+
+    @staticmethod
+    def from_dict(data: dict) -> "NotionIcon":
+        return NotionIcon(icon_type=data["type"], icon_value=data["value"])
