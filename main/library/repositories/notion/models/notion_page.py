@@ -14,8 +14,24 @@ class NotionPage:
         properties: list[NotionProperty],
         blocks: list[NotionPageBlock],
         page_id: str = None,
+        parent: dict[str, str] = None,
+        url: str = None,
+        request_id: str = None,
+        archived: bool = False,
+        created_time: str = None,
+        last_edited_time: str = None,
+        created_by: str = None,
+        last_edited_by: str = None,
     ):
         self.id = page_id
+        self.parent = parent
+        self.url = url
+        self.request_id = request_id
+        self.archived = archived
+        self.created_time = created_time
+        self.last_edited_time = last_edited_time
+        self.created_by = created_by
+        self.last_edited_by = last_edited_by
         self.icon = icon
         self.properties = properties
         self.blocks = blocks

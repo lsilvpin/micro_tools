@@ -122,13 +122,16 @@ class NotionPageManager:
         blocks: list[NotionPageBlock] = []
         has_more: bool = True
         next_cursor: str = None
-        while has_more:
-            response: dict = self.notion_block_manager.read_page_blocks_by_page_id(
-                page_id, page_size=100, start_cursor=next_cursor
-            )
-            blocks.extend(response["blocks"])
-            has_more = response["has_more"]
-            next_cursor = response["next_cursor"]
+        try:
+            while has_more:
+                response: dict = self.notion_block_manager.read_page_blocks_by_page_id(
+                    page_id, page_size=100, start_cursor=next_cursor
+                )
+                blocks.extend(response["blocks"])
+                has_more = response["has_more"]
+                next_cursor = response["next_cursor"]
+        except Exception as e:
+            self.log_tool.error(f"Error reading page blocks: {e}")
         notionPage.blocks = blocks
         return notionPage
     

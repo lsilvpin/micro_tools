@@ -29,6 +29,14 @@ def build_page_from_response(response: dict) -> NotionPage:
     assert "properties" in response, "Response properties cannot be None"
     assert response["properties"] is not None, "Response properties cannot be None"
     page_id: str = response["id"]
+    created_time: str = response["created_time"]
+    last_edited_time: str = response["last_edited_time"]
+    created_by: str = response["created_by"]["id"]
+    last_edited_by: str = response["last_edited_by"]["id"]
+    parent: dict = response["parent"]
+    archived: bool = response["archived"]
+    url: str = response["url"]
+    request_id: str = response["request_id"]
     page_icon: NotionIcon = get_icon_from_response(response)
     properties: dict = response["properties"]
     notionProperties: list = []
@@ -38,7 +46,20 @@ def build_page_from_response(response: dict) -> NotionPage:
         prop_type: str = properties[prop]["type"]
         value: str = get_prop_value_from_response(properties[prop])
         notionProperties.append(NotionProperty(name, prop_type, value))
-    return NotionPage(page_icon, notionProperties, notionBlocks, page_id)
+    return NotionPage(
+        page_icon,
+        notionProperties,
+        notionBlocks,
+        page_id,
+        parent,
+        url,
+        request_id,
+        archived,
+        created_time,
+        last_edited_time,
+        created_by,
+        last_edited_by,
+    )
 
 
 def get_icon_from_response(response: dict) -> NotionIcon:
@@ -85,9 +106,15 @@ def get_block_value_from_response(block: dict) -> Any:
     elif block_type == "video":
         return str(block["video"]["external"]["url"])
     elif block_type == "file":
-        return {"name": str(block["file"]["name"]), "url": str(block["file"]["external"]["url"])}
+        return {
+            "name": str(block["file"]["name"]),
+            "url": str(block["file"]["external"]["url"]),
+        }
     elif block_type == "code":
-        return {"content": str(block["code"]["rich_text"][0]["plain_text"]), "language": str(block["code"]["language"])}
+        return {
+            "content": str(block["code"]["rich_text"][0]["plain_text"]),
+            "language": str(block["code"]["language"]),
+        }
     elif block_type == "quote":
         return str(block["quote"]["rich_text"][0]["plain_text"])
     else:
@@ -105,10 +132,16 @@ def get_prop_value_from_response(prop: dict) -> Any:
     elif prop_type == "number":
         return float(prop["number"])
     elif prop_type == "select":
-        return {"name": str(prop["select"]["name"]), "color": str(prop["select"]["color"])}
+        return {
+            "name": str(prop["select"]["name"]),
+            "color": str(prop["select"]["color"]),
+        }
     elif prop_type == "multi_select":
         options: list[dict] = prop["multi_select"]
-        return [{"name": str(option["name"]), "color": str(option["color"])} for option in options]
+        return [
+            {"name": str(option["name"]), "color": str(option["color"])}
+            for option in options
+        ]
     elif prop_type == "date":
         return str(prop["date"]["start"])
     elif prop_type == "people":
@@ -116,7 +149,10 @@ def get_prop_value_from_response(prop: dict) -> Any:
         return people_ids
     elif prop_type == "files":
         files: list[dict] = prop["files"]
-        return [{"name": str(file["name"]), "url": str(file["external"]["url"])} for file in files]
+        return [
+            {"name": str(file["name"]), "url": str(file["external"]["url"])}
+            for file in files
+        ]
     elif prop_type == "checkbox":
         return bool(prop["checkbox"])
     elif prop_type == "url":

@@ -17,346 +17,8 @@ from main.library.utils.models.validation_exception import ValidationException
 router = APIRouter()
 
 
-@router.get(
-    "/info",
-    tags=["Information"],
-    responses={
-        200: {"description": "Success", "content": {"application/json": {}}},
-        500: {
-            "description": "Internal Server Error",
-            "content": {"application/json": {}},
-        },
-    },
-)
-@inject
-async def get_info(logger: LogTool = Depends(Provide[Container.log_tool])):
-    """
-    Retorna informações básicas deste micro-serviço.
-
-    Retorna um objeto JSON com o nome, a versão e outras informações úteis do micro-serviço.
-
-    Retorna:
-        - 200: Sucesso com as informações básicas do micro-serviço.
-        - 500: Erro interno do servidor com a mensagem de erro.
-    """
-    try:
-        name = "Meu Micro-serviço"
-        version = "1.0.0"
-        system = platform.system()
-        machine = platform.machine()
-        processor = platform.processor()
-        python_version = platform.python_version()
-        environment = get("environment")
-        logger.info(
-            "Informações sobre a API foram requisitadas e retornadas com sucesso."
-        )
-        return {
-            "name": name,
-            "version": version,
-            "system": system,
-            "machine": machine,
-            "processor": processor,
-            "python_version": python_version,
-            "environment": environment,
-        }
-    except Exception as e:
-        logger.error(f"Erro ao obter informações sobre a API: {str(e)}")
-        return {"error": str(e)}, 500
-
-
 @router.post(
-    "/create",
-    tags=["Sample Management"],
-    responses={
-        200: {
-            "description": "Success",
-            "content": {"application/json": {"example": {"CreatedId": "123456"}}},
-        },
-        422: {
-            "description": "Bad Request",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "ErrorTag": "Unprocessable Entity",
-                        "ErrorMessage": "Invalid request",
-                        "ErrorCode": "422",
-                    }
-                }
-            },
-        },
-        500: {
-            "description": "Internal Server Error",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "ErrorTag": "Internal Server Error",
-                        "ErrorMessage": "Internal Server Error",
-                        "ErrorCode": "500",
-                    }
-                }
-            },
-        },
-    },
-)
-@inject
-async def create_sample(
-    body: dict = Body(
-        ...,
-        example={
-            "ThingName": "My Thing",
-            "ThingDescription": "This is a thing.",
-            "ThingValue": 123.45,
-            "ThingStatus": "Active",
-            "ThingCreatedAt": "2021-01-01T00:00:00",
-            "ThingUpdatedAt": "2021-01-01T00:00:00",
-        },
-    ),
-    logger: LogTool = Depends(Provide[Container.log_tool]),
-):
-    """
-    Cria um objeto de exemplo.
-    """
-    try:
-        logger.info("Objeto de exemplo criado com sucesso.")
-        logger.info(f"Objeto de exemplo: {body}")
-        return {"CreatedId": "123456"}
-    except ValidationException as e:
-        logger.error(f"Erro ao validar os dados da requisição: {str(e)}")
-        return 400, {
-            "ErrorTag": "Bad Request",
-            "ErrorMessage": "Invalid request",
-            "ErrorCode": "400",
-        }
-    except Exception as e:
-        logger.error(f"Erro ao criar objeto de exemplo: {str(e)}")
-        return 500, {
-            "ErrorTag": "Internal Server Error",
-            "ErrorMessage": "Internal Server Error",
-            "ErrorCode": "500",
-        }
-
-
-@router.get(
-    "/read/{id}",
-    tags=["Sample Management"],
-    responses={
-        200: {
-            "description": "Success",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "ThingName": "My Thing",
-                        "ThingDescription": "This is a thing.",
-                        "ThingValue": 123.45,
-                        "ThingStatus": "Active",
-                        "ThingCreatedAt": "2021-01-01T00:00:00",
-                        "ThingUpdatedAt": "2021-01-01T00:00:00",
-                    }
-                }
-            },
-        },
-        422: {
-            "description": "Bad Request",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "ErrorTag": "Unprocessable Entity",
-                        "ErrorMessage": "Invalid request",
-                        "ErrorCode": "422",
-                    }
-                }
-            },
-        },
-        500: {
-            "description": "Internal Server Error",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "ErrorTag": "Internal Server Error",
-                        "ErrorMessage": "Internal Server Error",
-                        "ErrorCode": "500",
-                    }
-                }
-            },
-        },
-    },
-)
-@inject
-async def read_sample(
-    id: str = Path(
-        ..., title="ID", description="ID do objeto de exemplo", example="123456"
-    ),
-    logger: LogTool = Depends(Provide[Container.log_tool]),
-):
-    """
-    Lê um objeto de exemplo.
-    """
-    try:
-        logger.info(f"Objeto de exemplo lido com sucesso. ID: {id}")
-        return {
-            "ThingName": "My Thing",
-            "ThingDescription": "This is a thing.",
-            "ThingValue": 123.45,
-            "ThingStatus": "Active",
-            "ThingCreatedAt": "2021-01-01T00:00:00",
-            "ThingUpdatedAt": "2021-01-01T00:00:00",
-        }
-    except ValidationException as ve:
-        logger.error(f"Erro ao validar os dados da requisição: {str(ve)}")
-        return 400, {
-            "ErrorTag": "Bad Request",
-            "ErrorMessage": "Invalid request",
-            "ErrorCode": "400",
-        }
-    except Exception as e:
-        logger.error(f"Erro ao ler objeto de exemplo: {str(e)}")
-        return 500, {
-            "ErrorTag": "Internal Server Error",
-            "ErrorMessage": "Internal Server Error",
-            "ErrorCode": "500",
-        }
-
-
-@router.put(
-    "/update/{id}",
-    tags=["Sample Management"],
-    responses={
-        200: {
-            "description": "Success",
-            "content": {"application/json": {"example": {"UpdatedId": "123456"}}},
-        },
-        400: {
-            "description": "Bad Request",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "ErrorTag": "Bad Request",
-                        "ErrorMessage": "Invalid request",
-                        "ErrorCode": "400",
-                    }
-                }
-            },
-        },
-        500: {
-            "description": "Internal Server Error",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "ErrorTag": "Internal Server Error",
-                        "ErrorMessage": "Internal Server Error",
-                        "ErrorCode": "500",
-                    }
-                }
-            },
-        },
-    },
-)
-@inject
-async def update_sample(
-    id: str = Path(
-        ..., title="ID", description="ID do objeto de exemplo", example="123456"
-    ),
-    body: dict = Body(
-        ...,
-        example={
-            "ThingName": "My Thing",
-            "ThingDescription": "This is a thing.",
-            "ThingValue": 123.45,
-            "ThingStatus": "Active",
-            "ThingCreatedAt": "2021-01-01T00:00:00",
-            "ThingUpdatedAt": "2021-01-01T00:00:00",
-        },
-    ),
-    logger: LogTool = Depends(Provide[Container.log_tool]),
-):
-    """
-    Atualiza um objeto de exemplo.
-    """
-    try:
-        logger.info(f"Objeto de exemplo atualizado com sucesso. ID: {id}")
-        logger.info(f"Objeto de exemplo atualizado: {body}")
-        return {"UpdatedId": "123456"}
-    except ValidationException as ve:
-        logger.error(f"Erro ao validar os dados da requisição: {str(ve)}")
-        return 400, {
-            "ErrorTag": "Bad Request",
-            "ErrorMessage": "Invalid request",
-            "ErrorCode": "400",
-        }
-    except Exception as e:
-        logger.error(f"Erro ao atualizar objeto de exemplo: {str(e)}")
-        return 500, {
-            "ErrorTag": "Internal Server Error",
-            "ErrorMessage": "Internal Server Error",
-            "ErrorCode": "500",
-        }
-
-
-@router.delete(
-    "/delete/{id}",
-    tags=["Sample Management"],
-    responses={
-        200: {
-            "description": "Success",
-            "content": {"application/json": {"example": {"DeletedId": "123456"}}},
-        },
-        400: {
-            "description": "Bad Request",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "ErrorTag": "Bad Request",
-                        "ErrorMessage": "Invalid request",
-                        "ErrorCode": "400",
-                    }
-                }
-            },
-        },
-        500: {
-            "description": "Internal Server Error",
-            "content": {
-                "application/json": {
-                    "example": {
-                        "ErrorTag": "Internal Server Error",
-                        "ErrorMessage": "Internal Server Error",
-                        "ErrorCode": "500",
-                    }
-                }
-            },
-        },
-    },
-)
-@inject
-async def delete_sample(
-    id: str = Path(
-        ..., title="ID", description="ID do objeto de exemplo", example="123456"
-    ),
-    logger: LogTool = Depends(Provide[Container.log_tool]),
-):
-    """
-    Deleta um objeto de exemplo.
-    """
-    try:
-        logger.info(f"Objeto de exemplo deletado com sucesso. ID: {id}")
-        return {"DeletedId": "123456"}
-    except ValidationException as ve:
-        logger.error(f"Erro ao validar os dados da requisição: {str(ve)}")
-        return 400, {
-            "ErrorTag": "Bad Request",
-            "ErrorMessage": "Invalid request",
-            "ErrorCode": "400",
-        }
-    except Exception as e:
-        logger.error(f"Erro ao deletar objeto de exemplo: {str(e)}")
-        return 500, {
-            "ErrorTag": "Internal Server Error",
-            "ErrorMessage": "Internal Server Error",
-            "ErrorCode": "500",
-        }
-
-
-@router.post(
-    "/pages/{database_id}",
+    "/pages/{database_id}/create",
     tags=["Notion Management"],
     responses={
         200: {
@@ -549,7 +211,7 @@ async def create_page(
 
 
 @router.get(
-    "/pages/{page_id}",
+    "/pages/{page_id}/read",
     tags=["Notion Management"],
     responses={
         200: {
@@ -558,6 +220,17 @@ async def create_page(
                 "application/json": {
                     "example": {
                         "id": "6f48b54c-094d-4339-aa90-89f9985fb6c7",
+                        "parent": {
+                            "type": "database_id",
+                            "database_id": "c7c1007a-d112-4b8c-a621-a769adaf7dda",
+                        },
+                        "url": "https://www.notion.so/My-Page-6f48b54c094d4339aa9089f9985fb6c7",
+                        "request_id": "239e5628-f003-41b2-a4c6-4916f11f24d2",
+                        "archived": False,
+                        "created_time": "2024-05-24T22:43:00.000Z",
+                        "last_edited_time": "2024-05-24T22:43:00.000Z",
+                        "created_by": "27910b45-ae07-403c-b7e9-35b5adc896af",
+                        "last_edited_by": "27910b45-ae07-403c-b7e9-35b5adc896af",
                         "icon": {"type": "emoji", "value": "🚀"},
                         "properties": [
                             {
@@ -813,6 +486,178 @@ async def read_page(
     except Exception as e:
         error_msg: str = e.args[0]
         log_tool.error(f"Erro ao ler página: {error_msg}")
+        stack_trace: str = traceback.format_exc()
+        log_tool.error(f"Traceback: {stack_trace}")
+        return JSONResponse(
+            content={
+                "Message": error_msg,
+                "StackTrace": stack_trace,
+            },
+            status_code=500,
+        )
+
+
+@router.put(
+    "/pages/{page_id}/archive",
+    tags=["Notion Management"],
+    responses={
+        200: {
+            "description": "Success",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Página 6f48b54c-094d-4339-aa90-89f9985fb6c7 arquivada com sucesso."
+                    }
+                }
+            },
+        },
+        400: {
+            "description": "Bad Request",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Invalid request",
+                        "StackTrace": "Traceback...",
+                    }
+                }
+            },
+        },
+        500: {
+            "description": "Internal Server Error",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Internal Server Error",
+                        "StackTrace": "Traceback...",
+                    }
+                }
+            },
+        },
+    },
+)
+@inject
+async def archive_page(
+    page_id: str = Path(
+        ...,
+        title="Page ID",
+        description="ID da página do Notion",
+        example="6f48b54c-094d-4339-aa90-89f9985fb6c7",
+    ),
+    log_tool: LogTool = Depends(Provide[Container.log_tool]),
+    notion_page_manager: NotionPageManager = Depends(
+        Provide[Container.notion_page_manager]
+    ),
+):
+    """
+    Atualiza uma página no Notion.
+    """
+    try:
+        log_tool.info("Atualizando página no Notion.")
+        assert page_id is not None, "ID da página não pode ser nulo."
+        response: dict = notion_page_manager.archive_page_by_id(page_id)
+        log_tool.info(f"Resposta da API do Notion: {response}")
+        return {"Message": f"Página {page_id} arquivada com sucesso."}
+    except ValidationException as ve:
+        error_msg: str = ve.args[0]
+        log_tool.error(f"Erro ao validar os dados da requisição: {error_msg}")
+        stack_trace: str = traceback.format_exc()
+        log_tool.error(f"Traceback: {stack_trace}")
+        return JSONResponse(
+            content={
+                "Message": error_msg,
+                "StackTrace": stack_trace,
+            },
+            status_code=400,
+        )
+    except Exception as e:
+        error_msg: str = e.args[0]
+        log_tool.error(f"Erro ao atualizar página: {error_msg}")
+        stack_trace: str = traceback.format_exc()
+        log_tool.error(f"Traceback: {stack_trace}")
+        return JSONResponse(
+            content={
+                "Message": error_msg,
+                "StackTrace": stack_trace,
+            },
+            status_code=500,
+        )
+
+
+@router.put(
+    "/pages/{page_id}/unarchive",
+    tags=["Notion Management"],
+    responses={
+        200: {
+            "description": "Success",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Página 6f48b54c-094d-4339-aa90-89f9985fb6c7 recuperada com sucesso."
+                    }
+                }
+            },
+        },
+        400: {
+            "description": "Bad Request",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Invalid request",
+                        "StackTrace": "Traceback...",
+                    }
+                }
+            },
+        },
+        500: {
+            "description": "Internal Server Error",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Internal Server Error",
+                        "StackTrace": "Traceback...",
+                    }
+                }
+            },
+        },
+    },
+)
+@inject
+async def unarchive_page(
+    page_id: str = Path(
+        ...,
+        title="Page ID",
+        description="ID da página do Notion",
+        example="6f48b54c-094d-4339-aa90-89f9985fb6c7",
+    ),
+    log_tool: LogTool = Depends(Provide[Container.log_tool]),
+    notion_page_manager: NotionPageManager = Depends(
+        Provide[Container.notion_page_manager]
+    ),
+):
+    """
+    Desarquiva uma página no Notion.
+    """
+    try:
+        log_tool.info("Desarquivando página no Notion.")
+        assert page_id is not None, "ID da página não pode ser nulo."
+        response: dict = notion_page_manager.unarchive_page_by_id(page_id)
+        log_tool.info(f"Resposta da API do Notion: {response}")
+        return {"Message": f"Página {page_id} recuperada com sucesso."}
+    except ValidationException as ve:
+        error_msg: str = ve.args[0]
+        log_tool.error(f"Erro ao validar os dados da requisição: {error_msg}")
+        stack_trace: str = traceback.format_exc()
+        log_tool.error(f"Traceback: {stack_trace}")
+        return JSONResponse(
+            content={
+                "Message": error_msg,
+                "StackTrace": stack_trace,
+            },
+            status_code=400,
+        )
+    except Exception as e:
+        error_msg: str = e.args[0]
+        log_tool.error(f"Erro ao desarquivar página: {error_msg}")
         stack_trace: str = traceback.format_exc()
         log_tool.error(f"Traceback: {stack_trace}")
         return JSONResponse(
