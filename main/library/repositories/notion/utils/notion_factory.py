@@ -1,4 +1,5 @@
 import sys, os
+from typing import Any
 
 from main.library.repositories.notion.models.notion_custom_icon import NotionIcon
 from main.library.repositories.notion.utils.notion_icon_types import NOTION_ICON_TYPES
@@ -59,82 +60,86 @@ def get_icon_from_response(response: dict) -> NotionIcon:
         raise Exception(f"Invalid icon type: {icon_type}")
 
 
-def get_block_value_from_response(block: dict) -> str:
+def get_block_value_from_response(block: dict) -> Any:
     assert block is not None, "Block cannot be None"
     assert "type" in block, "Block type cannot be None"
     block_type: str = block["type"]
     if block_type == "paragraph":
-        return block["paragraph"]["text"][0]["text"]["content"]
+        return str(block["paragraph"]["rich_text"][0]["plain_text"])
     elif block_type == "heading_1":
-        return block["heading_1"]["text"][0]["text"]["content"]
+        return str(block["heading_1"]["rich_text"][0]["plain_text"])
     elif block_type == "heading_2":
-        return block["heading_2"]["text"][0]["text"]["content"]
+        return str(block["heading_2"]["rich_text"][0]["plain_text"])
     elif block_type == "heading_3":
-        return block["heading_3"]["text"][0]["text"]["content"]
-    elif block_type == "bulleted_list":
-        return block["bulleted_list"]["text"][0]["text"]["content"]
-    elif block_type == "numbered_list":
-        return block["numbered_list"]["text"][0]["text"]["content"]
+        return str(block["heading_3"]["rich_text"][0]["plain_text"])
+    elif block_type == "bulleted_list_item":
+        return str(block["bulleted_list_item"]["rich_text"][0]["plain_text"])
+    elif block_type == "numbered_list_item":
+        return str(block["numbered_list_item"]["rich_text"][0]["plain_text"])
     elif block_type == "to_do":
-        return block["to_do"]["text"][0]["text"]["content"]
+        return str(block["to_do"]["rich_text"][0]["plain_text"])
     elif block_type == "toggle":
-        return block["toggle"]["text"][0]["text"]["content"]
+        return str(block["toggle"]["rich_text"][0]["plain_text"])
     elif block_type == "image":
-        return block["image"]["external"]["url"]
+        return str(block["image"]["external"]["url"])
     elif block_type == "video":
-        return block["video"]["external"]["url"]
+        return str(block["video"]["external"]["url"])
     elif block_type == "file":
-        return block["file"]["external"]["url"]
+        return {"name": str(block["file"]["name"]), "url": str(block["file"]["external"]["url"])}
     elif block_type == "code":
-        return block["code"]["text"]
+        return {"content": str(block["code"]["rich_text"][0]["plain_text"]), "language": str(block["code"]["language"])}
     elif block_type == "quote":
-        return block["quote"]["text"][0]["text"]["content"]
+        return str(block["quote"]["rich_text"][0]["plain_text"])
     else:
         raise Exception(f"Invalid block type: {block_type}")
 
 
-def get_prop_value_from_response(prop: dict) -> str:
+def get_prop_value_from_response(prop: dict) -> Any:
     assert prop is not None, "Property cannot be None"
     assert "type" in prop, "Property type cannot be None"
     prop_type: str = prop["type"]
     if prop_type == "title":
-        return prop["title"][0]["plain_text"]
+        return str(prop["title"][0]["plain_text"])
     elif prop_type == "rich_text":
-        return prop["rich_text"][0]["plain_text"]
+        return str(prop["rich_text"][0]["plain_text"])
     elif prop_type == "number":
-        return str(prop["number"])
+        return float(prop["number"])
     elif prop_type == "select":
-        return prop["select"]["name"]
+        return {"name": str(prop["select"]["name"]), "color": str(prop["select"]["color"])}
     elif prop_type == "multi_select":
-        return prop["multi_select"][0]["name"]
+        options: list[dict] = prop["multi_select"]
+        return [{"name": str(option["name"]), "color": str(option["color"])} for option in options]
     elif prop_type == "date":
-        return prop["date"]["start"]
+        return str(prop["date"]["start"])
     elif prop_type == "people":
-        return prop["people"][0]["id"]
+        people_ids: list[str] = [str(person["id"]) for person in prop["people"]]
+        return people_ids
     elif prop_type == "files":
-        return prop["files"][0]["id"]
+        files: list[dict] = prop["files"]
+        return [{"name": str(file["name"]), "url": str(file["external"]["url"])} for file in files]
     elif prop_type == "checkbox":
-        return str(prop["checkbox"])
+        return bool(prop["checkbox"])
     elif prop_type == "url":
-        return prop["url"]
+        return str(prop["url"])
     elif prop_type == "email":
-        return prop["email"]
+        return str(prop["email"])
     elif prop_type == "phone_number":
-        return prop["phone_number"]
+        return str(prop["phone_number"])
     elif prop_type == "formula":
-        return prop["formula"]["expression"]
+        return dict(prop["formula"])
     elif prop_type == "relation":
-        return prop["relation"][0]["id"]
+        relation_list: list[dict] = prop["relation"]
+        return [str(relation["id"]) for relation in relation_list]
     elif prop_type == "rollup":
-        return prop["rollup"]["array"][0]["id"]
+        return dict(prop["rollup"])
     elif prop_type == "created_time":
-        return prop["created_time"]
+        return str(prop["created_time"])
     elif prop_type == "last_edited_time":
-        return prop["last_edited_time"]
+        return str(prop["last_edited_time"])
     elif prop_type == "last_edited_by":
-        return prop["last_edited_by"]["id"]
+        return str(prop["last_edited_by"]["id"])
     elif prop_type == "created_by":
-        return prop["created_by"]["id"]
+        return str(prop["created_by"]["id"])
     else:
         raise Exception(f"Invalid property type: {prop_type}")
 
@@ -371,7 +376,9 @@ def build_blocks_for_request(page: NotionPage) -> list:
                 }
             )
         elif notionBlock.type == "code":
-            assert isinstance(notionBlock.value, dict), "When type is code, value must be a dictionary"
+            assert isinstance(
+                notionBlock.value, dict
+            ), "When type is code, value must be a dictionary"
             code: dict = notionBlock.value
             code_content: str = code["content"]
             code_language: str = code["language"]
@@ -389,7 +396,7 @@ def build_blocks_for_request(page: NotionPage) -> list:
                                 },
                             }
                         ],
-                        "language": code_language
+                        "language": code_language,
                     },
                 }
             )
@@ -501,7 +508,8 @@ def build_properties_for_request(page: NotionPage) -> dict:
             ), "When type is files, value must be a list of strings"
             files: list[dict] = notionProperty.value
             files_obj: list[str] = [
-                {"name": file["name"], "external": {"url": file["url"]}} for file in files
+                {"name": file["name"], "external": {"url": file["url"]}}
+                for file in files
             ]
             properties[notionProperty.name] = {"files": files_obj}
         elif notionProperty.type == "checkbox":

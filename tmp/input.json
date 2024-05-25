@@ -1,0 +1,154 @@
+{
+    "icon": {
+        "type": "emoji",
+        "emoji": "🚀"
+    },
+    "properties": [
+        {
+            "name": "Name",
+            "type": "title",
+            "value": "My Page"
+        },
+        {
+            "name": "Description",
+            "type": "rich_text",
+            "value": "This is a description"
+        },
+        {
+            "name": "Number",
+            "type": "number",
+            "value": 123.45
+        },
+        {
+            "name": "Select",
+            "type": "select",
+            "value": {
+                "name": "Option 1",
+                "color": "gray"
+            }
+        },
+        {
+            "name": "Tags",
+            "type": "multi_select",
+            "value": [
+                {
+                    "name": "Tag 1",
+                    "color": "gray"
+                },
+                {
+                    "name": "Tag 2",
+                    "color": "blue"
+                }
+            ]
+        },
+        {
+            "name": "Data",
+            "type": "date",
+            "value": "2024-05-24"
+        },
+        {
+            "name": "IsTrue",
+            "type": "checkbox",
+            "value": true
+        },
+        {
+            "name": "Pessoa",
+            "type": "people",
+            "value": [
+                "6595192e-1c62-4f33-801c-84424f2ffa9c"
+            ]
+        },
+        {
+            "name": "Arquivo",
+            "type": "files",
+            "value": [
+                {
+                    "name": "MeninaBonita.jpeg",
+                    "url": "https://images.unsplash.com/photo-1513097633097-329a3a64e0d4?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb"
+                }
+            ]
+        },
+        {
+            "name": "URL",
+            "type": "url",
+            "value": "https://www.google.com"
+        },
+        {
+            "name": "Email",
+            "type": "email",
+            "value": "fulano@email.com"
+        },
+        {
+            "name": "Número Telefone",
+            "type": "phone_number",
+            "value": "+5511999999999"
+        },
+        {
+            "name": "TB_MICRO_TOOLS_AGENTS",
+            "type": "relation",
+            "value": [
+                "4c65fc9c-2ff4-462e-9493-71ebb14c22cb"
+            ]
+        }
+    ],
+    "blocks": [
+        {
+            "type": "image",
+            "value": "https://images.unsplash.com/photo-1513097633097-329a3a64e0d4?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb"
+        },
+        {
+            "type": "heading_1",
+            "value": "Título 1"
+        },
+        {
+            "type": "heading_2",
+            "value": "Título 2"
+        },
+        {
+            "type": "heading_3",
+            "value": "Título 3"
+        },
+        {
+            "type": "paragraph",
+            "value": "Este é um parágrafo."
+        },
+        {
+            "type": "video",
+            "value": "https://www.youtube.com/watch?v=wVL6z7lWvjQ&list=RDwVL6z7lWvjQ&start_radio=1"
+        },
+        {
+            "type": "bulleted_list_item",
+            "value": "Item de lista"
+        },
+        {
+            "type": "numbered_list_item",
+            "value": "Item de lista numerada"
+        },
+        {
+            "type": "to_do",
+            "value": "Tarefa a fazer"
+        },
+        {
+            "type": "toggle",
+            "value": "Alternar"
+        },
+        {
+            "type": "file",
+            "value": {
+                "name": "MeninaBonita.jpeg",
+                "url": "https://images.unsplash.com/photo-1513097633097-329a3a64e0d4?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb"
+            }
+        },
+        {
+            "type": "code",
+            "value": {
+                "content": "print('Hello, World!')",
+                "language": "python"
+            }
+        },
+        {
+            "type": "quote",
+            "value": "Citação"
+        }
+    ]
+}
