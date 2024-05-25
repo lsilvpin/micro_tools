@@ -498,6 +498,161 @@ async def read_page(
 
 
 @router.put(
+    "/pages/{page_id}/update",
+    tags=["Notion Management"],
+    responses={
+        200: {
+            "description": "Success",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Página 6f48b54c-094d-4339-aa90-89f9985fb6c7 atualizada com sucesso."
+                    }
+                }
+            },
+        },
+        400: {
+            "description": "Bad Request",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Invalid request",
+                        "StackTrace": "Traceback...",
+                    }
+                }
+            },
+        },
+        500: {
+            "description": "Internal Server Error",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Internal Server Error",
+                        "StackTrace": "Traceback...",
+                    }
+                }
+            },
+        },
+    },
+)
+@inject
+async def update_page(
+    page_id: str = Path(
+        ...,
+        title="Page ID",
+        description="ID da página do Notion",
+        example="6f48b54c-094d-4339-aa90-89f9985fb6c7",
+    ),
+    body: dict = Body(
+        ...,
+        example={
+            "icon": {"type": "emoji", "value": "🚀"},
+            "properties": [
+                {"name": "Name", "type": "title", "value": "My Page"},
+                {
+                    "name": "Description",
+                    "type": "rich_text",
+                    "value": "This is a description",
+                },
+                {"name": "Number", "type": "number", "value": 123.45},
+                {
+                    "name": "Select",
+                    "type": "select",
+                    "value": {"name": "Option 1", "color": "gray"},
+                },
+                {
+                    "name": "Tags",
+                    "type": "multi_select",
+                    "value": [
+                        {"name": "Tag 1", "color": "gray"},
+                        {"name": "Tag 2", "color": "blue"},
+                    ],
+                },
+                {"name": "Data", "type": "date", "value": "2024-05-24"},
+                {"name": "IsTrue", "type": "checkbox", "value": True},
+                {
+                    "name": "Pessoa",
+                    "type": "people",
+                    "value": ["6595192e-1c62-4f33-801c-84424f2ffa9c"],
+                },
+                {
+                    "name": "Arquivo",
+                    "type": "files",
+                    "value": [
+                        {
+                            "name": "MeninaBonita.jpeg",
+                            "url": "https://images.unsplash.com/photo-1513097633097-329a3a64e0d4?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb",
+                        }
+                    ],
+                },
+                {"name": "URL", "type": "url", "value": "https://www.google.com"},
+                {"name": "Email", "type": "email", "value": "fulano@email.com"},
+                {
+                    "name": "Número Telefone",
+                    "type": "phone_number",
+                    "value": "+5511999999999",
+                },
+                {
+                    "name": "TB_MICRO_TOOLS_AGENTS",
+                    "type": "relation",
+                    "value": ["4c65fc9c-2ff4-462e-9493-71ebb14c22cb"],
+                },
+            ],
+        },
+    ),
+    log_tool: LogTool = Depends(Provide[Container.log_tool]),
+    notion_page_manager: NotionPageManager = Depends(
+        Provide[Container.notion_page_manager]
+    ),
+):
+    """
+    Atualiza uma página no Notion.
+    """
+    try:
+        log_tool.info("Atualizando página no Notion.")
+        assert page_id is not None, "ID da página não pode ser nulo."
+        notion_icon: NotionIcon = NotionIcon(
+            icon_type=body["icon"]["type"], icon_value=body["icon"]["value"]
+        )
+        page_properties: list[NotionProperty] = []
+        for prop in body["properties"]:
+            page_properties.append(
+                NotionProperty(
+                    name=prop["name"], prop_type=prop["type"], value=prop["value"]
+                )
+            )
+        notion_page: NotionPage = NotionPage(notion_icon, page_properties, [])
+        log_tool.info(f"Payload: {notion_page}")
+        response: dict = notion_page_manager.update_page_by_id(page_id, notion_page)
+        log_tool.info(f"Resposta da API do Notion: {response}")
+        return {"Message": f"Página {page_id} atualizada com sucesso."}
+    except ValidationException as ve:
+        error_msg: str = ve.args[0]
+        log_tool.error(f"Erro ao validar os dados da requisição: {error_msg}")
+        stack_trace: str = traceback.format_exc()
+        log_tool.error(f"Traceback: {stack_trace}")
+        return JSONResponse(
+            content={
+                "Message": error_msg,
+                "StackTrace": stack_trace,
+            },
+            status_code=400,
+        )
+    except Exception as e:
+        error_msg: str = e.args[0]
+        log_tool.error(f"Erro ao atualizar página: {error_msg}")
+        stack_trace: str = traceback.format_exc()
+        log_tool.error(f"Traceback: {stack_trace}")
+        return JSONResponse(
+            content={
+                "Message": error_msg,
+                "StackTrace": stack_trace,
+            },
+            status_code=500,
+        )
+
+
+@router.put(
     "/pages/{page_id}/archive",
     tags=["Notion Management"],
     responses={
