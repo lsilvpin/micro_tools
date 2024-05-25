@@ -83,7 +83,7 @@ async def search(
     notion_searcher: NotionSearcher = Depends(Provide[Container.notion_searcher]),
 ):
     """
-    Busca uma página no Notion.
+    Buscar uma página ou banco de dados no Notion.
     """
     try:
         log_tool.info("Buscando página no Notion.")
