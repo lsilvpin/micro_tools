@@ -750,7 +750,7 @@ async def update_page(
         )
 
 
-@router.put(
+@router.patch(
     "/pages/{page_id}/archive",
     tags=["Notion Page Management"],
     responses={
@@ -836,7 +836,7 @@ async def archive_page(
         )
 
 
-@router.put(
+@router.patch(
     "/pages/{page_id}/unarchive",
     tags=["Notion Page Management"],
     responses={
