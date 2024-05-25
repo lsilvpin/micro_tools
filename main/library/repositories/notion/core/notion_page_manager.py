@@ -134,7 +134,7 @@ class NotionPageManager:
         assert notion_version is not None, "NOTION_VERSION cannot be None"
         notion_api_key: str = self.settings_tool.get("NOTION_API_KEY")
         assert notion_api_key is not None, "NOTION_API_KEY cannot be None"
-        notion_database_uri: str = f"/v1/pages?database_id={database_id}"
+        notion_database_uri: str = f"/v1/databases/{database_id}/query"
         headers: dict = {
             "Authorization": f"Bearer {notion_api_key}",
             "Content-Type": "application/json",

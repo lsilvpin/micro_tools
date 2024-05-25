@@ -497,6 +497,105 @@ async def read_page(
         )
 
 
+@router.post(
+    "/pages/{database_id}/query",
+    tags=["Notion Management"],
+    responses={
+        200: {
+            "description": "Success",
+            "content": {"application/json": {"example": []}},
+        },
+        400: {
+            "description": "Bad Request",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Invalid request",
+                        "StackTrace": "Traceback...",
+                    }
+                }
+            },
+        },
+        500: {
+            "description": "Internal Server Error",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "Message": "Internal Server Error",
+                        "StackTrace": "Traceback...",
+                    }
+                }
+            },
+        },
+    },
+)
+@inject
+async def query_pages(
+    database_id: str = Path(
+        ...,
+        title="Database ID",
+        description="ID do banco de dados do Notion",
+        example="c7c1007a-d112-4b8c-a621-a769adaf7dda",
+    ),
+    body: dict = Body(
+        ...,
+        example={
+            "page_size": 100,
+            "filter": {
+                "or": [
+                    {"property": "Name", "title": {"contains": ""}},
+                    {
+                        "property": "Description",
+                        "rich_text": {"contains": ""},
+                    },
+                ]
+            },
+        },
+    ),
+    log_tool: LogTool = Depends(Provide[Container.log_tool]),
+    notion_page_manager: NotionPageManager = Depends(
+        Provide[Container.notion_page_manager]
+    ),
+):
+    """
+    Consulta páginas no Notion.
+    """
+    try:
+        log_tool.info("Consultando páginas no Notion.")
+        assert database_id is not None, "ID do banco de dados não pode ser nulo."
+        assert "filter" in body, "Filtro não pode ser nulo."
+        filter: dict | None = body["filter"]
+        response_obj: list[NotionPage] = notion_page_manager.query_pages_by_database_id(
+            database_id, filter
+        )
+        log_tool.info(f"Páginas retornadas: \n{response_obj}")
+        return response_obj
+    except ValidationException as ve:
+        error_msg: str = ve.args[0]
+        log_tool.error(f"Erro ao validar os dados da requisição: {error_msg}")
+        stack_trace: str = traceback.format_exc()
+        log_tool.error(f"Traceback: {stack_trace}")
+        return JSONResponse(
+            content={
+                "Message": error_msg,
+                "StackTrace": stack_trace,
+            },
+            status_code=400,
+        )
+    except Exception as e:
+        error_msg: str = e.args[0]
+        log_tool.error(f"Erro ao consultar páginas: {error_msg}")
+        stack_trace: str = traceback.format_exc()
+        log_tool.error(f"Traceback: {stack_trace}")
+        return JSONResponse(
+            content={
+                "Message": error_msg,
+                "StackTrace": stack_trace,
+            },
+            status_code=500,
+        )
+
+
 @router.put(
     "/pages/{page_id}/update",
     tags=["Notion Management"],
