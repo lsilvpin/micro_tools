@@ -7,6 +7,7 @@ from main.library.repositories.notion.core.notion_database_manager import (
 )
 from main.library.repositories.notion.core.notion_page_manager import NotionPageManager
 from main.library.repositories.notion.core.notion_searcher import NotionSearcher
+from main.library.tools.core.character_ai_tool import CharacterAiTool
 from main.library.tools.core.http_client_tool import HttpClientTool
 from main.library.tools.core.log_tool import LogTool
 from main.library.tools.core.settings_tool import SettingsTool
@@ -42,6 +43,11 @@ class Container(containers.DeclarativeContainer):
     )
     notion_searcher = providers.Factory(
         NotionSearcher,
+        settings_tool=settings_tool,
+        log_tool=log_tool,
+    )
+    character_ai_tool = providers.Factory(
+        CharacterAiTool,
         settings_tool=settings_tool,
         log_tool=log_tool,
     )
