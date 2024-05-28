@@ -1,0 +1,22 @@
+
+NOTION_PROPERTY_TYPES = {
+    "title": "title",
+    "rich_text": "rich_text",
+    "number": "number",
+    "select": "select",
+    "multi_select": "multi_select",
+    "date": "date",
+    "checkbox": "checkbox",
+    "people": "people",
+    "files": "files",
+    "url": "url",
+    "email": "email",
+    "phone_number": "phone_number",
+    "formula": "formula",
+    "relation": "relation",
+    "rollup": "rollup",
+    "created_time": "created_time",
+    "created_by": "created_by",
+    "last_edited_time": "last_edited_time",
+    "last_edited_by": "last_edited_by",
+}
