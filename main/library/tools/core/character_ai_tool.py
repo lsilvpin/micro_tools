@@ -1,5 +1,7 @@
 import os, sys
 
+from main.library.tools.models.character_ai_response import CharacterAiResponse
+
 sys.path.insert(0, os.path.abspath("."))
 from main.library.tools.core.log_tool import LogTool
 from main.library.tools.core.settings_tool import SettingsTool
@@ -21,20 +23,30 @@ class CharacterAiTool:
         self.log_tool.info(f"Token generated: {token}")
         return token
 
-    async def chat(self, token: str, char_id: str, message: str):
+    async def chat(
+        self, token: str, char_id: str, message: str, chat_id: str | None = None
+    ) -> CharacterAiResponse:
         assert token is not None, "Token is required"
         assert char_id is not None, "Character ID is required"
         assert message is not None, "Message is required"
         self.log_tool.info(f"Sending message {message} to character {char_id} ...")
         client = aiocai.Client(token)
         me = await client.get_me()
+        char_ai_response: CharacterAiResponse | None = None
         async with await client.connect() as chat:
-            new_chat = await chat.new_chat(char_id, me.id)
-            new, answer = new_chat[0], new_chat[1]
-            self.log_tool.info(f"{answer.name}: {answer.text}")
-            char_response = await chat.send_message(char_id, new.chat_id, message)
-            self.log_tool.info(f"{char_response.name}: {char_response.text}")
-            return char_response.text
+            if chat_id is None:
+                new_chat = await chat.new_chat(char_id, me.id)
+                new, answer = new_chat[0], new_chat[1]
+                self.log_tool.info(f"{answer.name}: {answer.text}")
+                char_response = await chat.send_message(char_id, new.chat_id, message)
+                self.log_tool.info(f"{char_response.name}: {char_response.text}")
+                char_ai_response = CharacterAiResponse(char_response)
+                return char_ai_response
+            else:
+                char_response = await chat.send_message(char_id, chat_id, message)
+                self.log_tool.info(f"{char_response.name}: {char_response.text}")
+                char_ai_response = CharacterAiResponse(char_response)
+                return char_ai_response
 
 
 # Uncomment the following lines to generate a token and chat with a character

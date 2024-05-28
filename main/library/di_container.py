@@ -58,5 +58,6 @@ class Container(containers.DeclarativeContainer):
             "main.entrypoint.controllers.notion.notion_page_manager_controller",
             "main.entrypoint.controllers.notion.notion_database_manager_controller",
             "main.entrypoint.controllers.notion.notion_searcher_controller",
+            "main.entrypoint.controllers.character_ai_controller",
         ]
     )

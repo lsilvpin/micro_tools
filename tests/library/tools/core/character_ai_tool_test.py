@@ -27,7 +27,7 @@ async def test_should_chat_with_character(mocker):
     characterai.aiocai.Client.return_value = client_mock
     me_mock = mocker.Mock()
     client_mock.get_me = mocker.AsyncMock(return_value=me_mock)
-    
+
     async with mocker.AsyncMock() as chat_mock:
         new_mock = mocker.Mock()
         answer_mock = mocker.Mock()
@@ -35,14 +35,14 @@ async def test_should_chat_with_character(mocker):
         response_text = response_sample["text"]
         chat_mock.send_message = mocker.AsyncMock(return_value=response_text)
         client_mock.connect = mocker.AsyncMock(return_value=chat_mock)
-    
+
     # Arrange
     token: str = "token"
     char_id: str = "char_id"
     message: str = "Olá, com que eu falo?"
 
     # Act
-    response: str = await character_ai_tool.chat(token, char_id, message)
+    response: dict = await character_ai_tool.chat(token, char_id, message)
 
     # Assert
     assert response is not None
