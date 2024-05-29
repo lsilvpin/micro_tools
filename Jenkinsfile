@@ -15,7 +15,7 @@ pipeline {
         }
         stage ('Test') {
             steps {
-                sh 'bash ./test-is-up.sh'
+                sh 'bash ./test-is-up.sh platao 9000'
             }
         }
     }
