@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        tag 'slave-platao'
+        label 'slave-platao'
     }
     stages {
         stage ('Build') {
