@@ -1,10 +1,13 @@
 #!/bin/bash
 
 host_name=${1:-"localhost"}
-port=${2:-"8000"}
+port=${2:-"9000"}
 protocol=${3:-"http"}
 
 echo "Checking if service is up..."
+echo "Host: $host_name"
+echo "Port: $port"
+echo "Protocol: $protocol"
 
 limit_counter=0
 
