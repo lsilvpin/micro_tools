@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent {
+        label 'slave-platao'
+    }
     stages {
         stage ('Build') {
             steps {
@@ -13,7 +15,7 @@ pipeline {
         }
         stage ('Test') {
             steps {
-                sh 'bash ./test-is-up.sh'
+                sh 'bash ./test-is-up.sh platao 9000'
             }
         }
     }
