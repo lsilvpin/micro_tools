@@ -1,7 +1,7 @@
 #!/bin/bash
 
 host_name=${1:-"localhost"}
-port=${2:-"8000"}
+port=${2:-"9000"}
 protocol=${3:-"http"}
 
 echo "Checking if service is up..."
