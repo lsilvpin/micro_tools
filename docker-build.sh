@@ -2,7 +2,7 @@
 
 echo "Building Docker image..."
 
-image_name=${1:-"python-microservice-image"}
+image_name=${1:-"micro_tools_image"}
 image_tag=${2:-"v1.0.0"}
 
 docker build \

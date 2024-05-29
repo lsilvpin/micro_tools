@@ -2,8 +2,8 @@
 
 echo "Running Docker container..."
 
-container_name=${1:-"python-microservice-container"}
-image_name=${2:-"python-microservice-image"}
+container_name=${1:-"micro_tools_container"}
+image_name=${2:-"micro_tools_image"}
 image_tag=${3:-"v1.0.0"}
 
 docker container stop $container_name
