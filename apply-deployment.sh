@@ -2,9 +2,7 @@
 
 function throw_error_if_need() {
     if [ $? -ne 0 ]; then
-        error_msg=$?
         echo "An error ocurred"
-        echo $error_msg
         exit 1
     fi
 }
