@@ -8,7 +8,7 @@ pipeline {
                 sh 'bash ./docker-build.sh'
             }
         }
-        stage ('Run') {
+        stage ('Deploy') {
             steps {
                 sh 'bash ./apply-deployment.sh'
             }

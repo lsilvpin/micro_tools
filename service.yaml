@@ -7,6 +7,7 @@ spec:
     app: micro-tools
   ports:
     - protocol: TCP
-      port: 9000 # Porta que você deseja no host
-      targetPort: 8000 # Porta do container
+      port: 8000
+      targetPort: 8000
+      nodePort: 9000
   type: NodePort
