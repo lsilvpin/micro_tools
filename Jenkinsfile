@@ -10,7 +10,7 @@ pipeline {
         }
         stage ('Run') {
             steps {
-                sh 'bash ./docker-run.sh'
+                sh 'bash ./apply-deployment.sh'
             }
         }
         stage ('Test') {
