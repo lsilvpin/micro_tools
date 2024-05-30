@@ -1,7 +1,7 @@
 #!/bin/bash
 
-host_name=${1:-"localhost"}
-port=${2:-"9000"}
+host_name=${1:-"platao"}
+port=${2:-"32000"}
 protocol=${3:-"http"}
 
 echo "Checking if service is up..."

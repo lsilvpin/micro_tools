@@ -10,12 +10,12 @@ pipeline {
         }
         stage ('Deploy') {
             steps {
-                sh 'bash ./apply-deployment.sh'
+                sh 'bash ./deploy.sh'
             }
         }
         stage ('Test') {
             steps {
-                sh 'bash ./test-is-up.sh platao 9000'
+                sh 'bash ./test-is-up.sh'
             }
         }
     }
