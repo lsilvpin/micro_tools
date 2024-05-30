@@ -7,7 +7,7 @@ spec:
     app: micro-tools
   ports:
     - protocol: TCP
-      port: 8000
+      port: 9000
       targetPort: 8000
       nodePort: 9000
   type: NodePort
