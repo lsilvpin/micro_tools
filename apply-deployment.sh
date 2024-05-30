@@ -1,13 +1,20 @@
 #!/bin/bash
 
-echo "Applying deployment..."
+{
+    echo "Applying deployment..."
 
-microk8s kubectl apply -f deployment.yaml
+    microk8s kubectl apply -f deployment.yaml
 
-echo "Deployment applied successfully."
+    echo "Deployment applied successfully."
 
-echo "Applying service..."
+    echo "Applying service..."
 
-microk8s kubectl apply -f service.yaml
+    microk8s kubectl apply -f service.yaml
 
-echo "Service applied successfully."
+    echo "Service applied successfully."
+} || {
+    error_msg=$?
+    echo "An error ocurred"
+    echo $error_msg
+    exit 1
+}
