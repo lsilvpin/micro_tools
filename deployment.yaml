@@ -17,4 +17,3 @@ spec:
         image: micro_tools_image:v1.0.0
         ports:
         - containerPort: 8000
-      host_port: 9000
