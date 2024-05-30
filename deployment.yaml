@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: micro_tools_deployment
+  name: micro-tools-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: micro_tools
+      app: micro-tools
   template:
     metadata:
       labels:
-        app: micro_tools
+        app: micro-tools
     spec:
       containers:
       - name: micro_tools_container
