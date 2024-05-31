@@ -3,7 +3,7 @@ pipeline {
         label 'slave-platao'
     }
     stages {
-        stage ('Build in docker') {
+        stage ('Build image') {
             steps {
                 sh 'bash ./docker-build.sh'
             }
@@ -13,7 +13,7 @@ pipeline {
                 sh 'bash ./deploy-docker.sh'
             }
         }
-        stage ('Deploy in kubernetes') {
+        stage ('Deploy in Kubernetes') {
             steps {
                 sh 'bash ./deploy-kubernetes.sh'
             }

@@ -12,7 +12,7 @@ echo "Running Docker container..."
 container_name=${1:-"micro_tools_container"}
 image_name=${2:-"micro_tools_image"}
 image_tag=${3:-"v1.0.0"}
-port=${4:-"9000"}
+port=${4:-"32000"}
 
 docker container stop $container_name
 throw_error_if_need
