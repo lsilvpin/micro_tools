@@ -13,6 +13,7 @@ container_name=${1:-"micro_tools_container"}
 image_name=${2:-"micro_tools_image"}
 image_tag=${3:-"v1.0.0"}
 port=${4:-"32000"}
+env_var_default=${5:-"hml"}
 
 docker container stop $container_name
 throw_error_if_need
@@ -23,6 +24,7 @@ docker run -d \
     -p $port:8000 \
     --name $container_name \
     $image_name:$image_tag \
+    -e MICRO_TOOLS_SYS_ENV=$env_var_default \
     sh -c "sleep 10; uvicorn main.entrypoint.main:app --host 0.0.0.0 --port 8000"
 throw_error_if_need
 
