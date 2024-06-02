@@ -19,10 +19,10 @@ docker container stop $container_name
 docker container rm $container_name
 
 docker run -d \
+    -e MICRO_TOOLS_SYS_ENV=$env_var_default \
     -p $port:8000 \
     --name $container_name \
     $image_name:$image_tag \
-    -e MICRO_TOOLS_SYS_ENV=$env_var_default \
     sh -c "sleep 10; uvicorn main.entrypoint.main:app --host 0.0.0.0 --port 8000"
 throw_error_if_need
 
