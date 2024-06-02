@@ -137,8 +137,8 @@ def get_prop_value_from_response(prop: dict) -> Any:
         return float(prop["number"])
     elif prop_type == "select":
         return {
-            "name": str(prop["select"]["name"] if "name" in prop["select"] else ""),
-            "color": str(prop["select"]["color"] if "color" in prop["select"] else ""),
+            "name": str(prop["select"]["name"] if prop["select"] is not None else ""),
+            "color": str(prop["select"]["color"] if prop["select"] is not None else ""),
         }
     elif prop_type == "multi_select":
         options: list[dict] = prop["multi_select"]
@@ -147,7 +147,7 @@ def get_prop_value_from_response(prop: dict) -> Any:
             for option in options
         ]
     elif prop_type == "date":
-        return str(prop["date"]["start"])
+        return str(prop["date"]["start"] if prop["date"] is not None else "")
     elif prop_type == "people":
         people_ids: list[str] = [str(person["id"]) for person in prop["people"]]
         return people_ids
@@ -158,10 +158,10 @@ def get_prop_value_from_response(prop: dict) -> Any:
             file_obj: dict = {}
             if "external" in file:
                 file_obj["name"] = str(file["name"])
-                file_obj["url"] = str(file["external"]["url"] if "url" in file["external"] else "")
+                file_obj["url"] = str(file["external"]["url"])
             elif "file" in file:
                 file_obj["name"] = str(file["name"])
-                file_obj["url"] = str(file["file"]["url"] if "url" in file["file"] else "")
+                file_obj["url"] = str(file["file"]["url"])
             else:
                 raise Exception(f"Unrecognized file object: {file}")
             files_to_return.append(file_obj)
@@ -186,9 +186,9 @@ def get_prop_value_from_response(prop: dict) -> Any:
     elif prop_type == "last_edited_time":
         return str(prop["last_edited_time"])
     elif prop_type == "last_edited_by":
-        return str(prop["last_edited_by"]["id"] if "id" in prop["last_edited_by"] else "")
+        return str(prop["last_edited_by"]["id"])
     elif prop_type == "created_by":
-        return str(prop["created_by"]["id"] if "id" in prop["created_by"] else "")
+        return str(prop["created_by"]["id"])
     else:
         raise Exception(f"Invalid property type: {prop_type}")
 
