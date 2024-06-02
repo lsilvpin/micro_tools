@@ -16,9 +16,7 @@ port=${4:-"32000"}
 env_var_default=${5:-"hml"}
 
 docker container stop $container_name
-throw_error_if_need
 docker container rm $container_name
-throw_error_if_need
 
 docker run -d \
     -p $port:8000 \
