@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: micro-tools-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: micro-tools
+  template:
+    metadata:
+      labels:
+        app: micro-tools
+    spec:
+      containers:
+      - name: micro-tools-container
+        image: micro_tools_image:v1.0.0
+        ports:
+        - containerPort: 8000

@@ -50,8 +50,8 @@ class CharacterAiTool:
 
 
 # Uncomment the following lines to generate a token and chat with a character
-# if __name__ == "__main__":
-#     settings_tool = SettingsTool()
-#     log_tool = LogTool()
-#     character_ai_tool = CharacterAiTool(settings_tool, log_tool)
-#     character_ai_tool.generate_token()
+if __name__ == "__main__":
+    settings_tool = SettingsTool()
+    log_tool = LogTool()
+    character_ai_tool = CharacterAiTool(settings_tool, log_tool)
+    character_ai_tool.generate_token()
