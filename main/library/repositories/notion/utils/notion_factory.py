@@ -137,8 +137,8 @@ def get_prop_value_from_response(prop: dict) -> Any:
         return float(prop["number"])
     elif prop_type == "select":
         return {
-            "name": str(prop["select"]["name"]),
-            "color": str(prop["select"]["color"]),
+            "name": str(prop["select"]["name"] if prop["select"] is not None else ""),
+            "color": str(prop["select"]["color"] if prop["select"] is not None else ""),
         }
     elif prop_type == "multi_select":
         options: list[dict] = prop["multi_select"]
@@ -147,7 +147,7 @@ def get_prop_value_from_response(prop: dict) -> Any:
             for option in options
         ]
     elif prop_type == "date":
-        return str(prop["date"]["start"])
+        return str(prop["date"]["start"] if prop["date"] is not None else "")
     elif prop_type == "people":
         people_ids: list[str] = [str(person["id"]) for person in prop["people"]]
         return people_ids

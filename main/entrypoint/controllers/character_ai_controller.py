@@ -23,11 +23,11 @@ router = APIRouter()
                     "example": {
                         "created_at": "27/05/2024 22:10:23",
                         "session": {
-                            "chat_id": "76f963ad-6f25-4693-b01b-b42bdc16c429",
+                            "chat_id": "0f3e34b0-df45-40d2-8be3-b0d5bffd1377",
                             "turn_id": "78c30aad-bbbb-4bb5-b39e-30fff8cd0440",
                         },
                         "character": {
-                            "id": "7IA8Bw3NsyjruZH-8gLLKqzo3UdZ_2QBvqrCBlS0__U",
+                            "id": "amhBBampjntDRr_RjHdjyrwvAxOqklHwItldIsqsjLU",
                             "name": "Chat GPT",
                         },
                         "candidates": [
@@ -78,13 +78,13 @@ async def chat(
         ...,
         title="Character ID",
         description="Identificador do personagem",
-        example="7IA8Bw3NsyjruZH-8gLLKqzo3UdZ_2QBvqrCBlS0__U",
+        example="amhBBampjntDRr_RjHdjyrwvAxOqklHwItldIsqsjLU",
     ),
     chat_id: str = Query(
         None,
         title="Chat ID",
         description="Identificador do chat",
-        example="76f963ad-6f25-4693-b01b-b42bdc16c429",
+        example="0f3e34b0-df45-40d2-8be3-b0d5bffd1377",
     ),
     body: dict = Body(
         ...,
