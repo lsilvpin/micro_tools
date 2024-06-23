@@ -21,14 +21,14 @@ echo "Previous service removed successfully."
 
 echo "Applying deployment..."
 
-microk8s kubectl apply -f deployment.yaml
+microk8s kubectl apply -f deployment.yaml --validate=false
 throw_error_if_need
 
 echo "Deployment applied successfully."
 
 echo "Applying service..."
 
-microk8s kubectl apply -f service.yaml
+microk8s kubectl apply -f service.yaml --validate=false
 throw_error_if_need
 
 echo "Service applied successfully."
