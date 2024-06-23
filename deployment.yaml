@@ -19,7 +19,7 @@ spec:
         - containerPort: 8000
         env:
         - name: MICRO_TOOLS_SYS_ENV
-          value: "hml"
+          value: "prd"
         command: ["sh", "-c"]
         args: ["uvicorn main.entrypoint.main:app --host 0.0.0.0 --port 8000"]
       imagePullSecrets:
