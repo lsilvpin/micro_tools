@@ -17,3 +17,5 @@ spec:
         image: ghcr.io/lsilvpin/micro_tools/micro_tools_image:v1.0.0
         ports:
         - containerPort: 8000
+      imagePullSecrets:
+      - name: github-registry
