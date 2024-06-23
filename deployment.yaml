@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: micro-tools-container
-        image: micro_tools_image:v1.0.0
+        image: localhost/micro_tools_image:v1.0.0
         ports:
         - containerPort: 8000
