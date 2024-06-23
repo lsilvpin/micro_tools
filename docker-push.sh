@@ -20,7 +20,7 @@ remote_image="$ghcr/$repo/$image_name:$image_tag"
 # Build the image
 echo "Pushing image to Docker Hub..."
 
-cat .ghcr_token | docker login $ghcr --username lsilvpin --password-stdin
+cat ~/.ghcr_token | docker login $ghcr --username lsilvpin --password-stdin
 throw_error_if_need
 
 docker tag $image_name:$image_tag $remote_image
