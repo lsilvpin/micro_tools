@@ -8,12 +8,17 @@ pipeline {
                 sh 'bash ./docker-build.sh'
             }
         }
-        stage ('Deploy in Docker') {
+        stage ('Push image') {
             steps {
-                sh 'bash ./deploy-docker.sh'
+                sh 'bash ./docker-push.sh'
             }
         }
-        stage ('Deploy in Kubernetes') {
+        // stage ('Deploy in Docker') {
+        //     steps {
+        //         sh 'bash ./deploy-docker.sh'
+        //     }
+        // }
+        stage ('Deploy in k8s') {
             steps {
                 sh 'bash ./deploy-kubernetes.sh'
             }
