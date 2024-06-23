@@ -8,6 +8,11 @@ pipeline {
                 sh 'bash ./docker-build.sh'
             }
         }
+        stage ('Push image') {
+            steps {
+                sh 'bash ./docker-push.sh'
+            }
+        }
         // stage ('Deploy in Docker') {
         //     steps {
         //         sh 'bash ./deploy-docker.sh'
