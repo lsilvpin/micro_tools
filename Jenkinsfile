@@ -8,11 +8,11 @@ pipeline {
                 sh 'bash ./docker-build.sh'
             }
         }
-        stage ('Deploy in Docker') {
-            steps {
-                sh 'bash ./deploy-docker.sh'
-            }
-        }
+        // stage ('Deploy in Docker') {
+        //     steps {
+        //         sh 'bash ./deploy-docker.sh'
+        //     }
+        // }
         stage ('Deploy in Kubernetes') {
             steps {
                 sh 'bash ./deploy-kubernetes.sh'
