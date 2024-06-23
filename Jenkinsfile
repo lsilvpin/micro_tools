@@ -18,7 +18,7 @@ pipeline {
         //         sh 'bash ./deploy-docker.sh'
         //     }
         // }
-        stage ('Deploy in Kubernetes') {
+        stage ('Deploy in k8s') {
             steps {
                 sh 'bash ./deploy-kubernetes.sh'
             }
