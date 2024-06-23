@@ -10,14 +10,12 @@ function throw_error_if_need() {
 echo "Removing previous deployment..."
 
 microk8s kubectl delete -f deployment.yaml
-throw_error_if_need
 
 echo "Previous deployment removed successfully."
 
 echo "Removing previous service..."
 
 microk8s kubectl delete -f service.yaml
-throw_error_if_need
 
 echo "Previous service removed successfully."
 
