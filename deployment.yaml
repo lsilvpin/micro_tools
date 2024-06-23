@@ -17,5 +17,10 @@ spec:
         image: ghcr.io/lsilvpin/micro_tools/micro_tools_image:v1.0.0
         ports:
         - containerPort: 8000
+        env:
+        - name: MICRO_TOOLS_SYS_ENV
+          value: "hml"
+        command: ["sh", "-c"]
+        args: ["uvicorn main.entrypoint.main:app --host 0.0.0.0 --port 8000"]
       imagePullSecrets:
       - name: github-registry

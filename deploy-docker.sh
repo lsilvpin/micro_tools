@@ -23,7 +23,7 @@ docker run -d \
     -p $port:8000 \
     --name $container_name \
     $image_name:$image_tag \
-    sh -c "sleep 10; uvicorn main.entrypoint.main:app --host 0.0.0.0 --port 8000"
+    sh -c "uvicorn main.entrypoint.main:app --host 0.0.0.0 --port 8000"
 throw_error_if_need
 
 timeout_sec=15
